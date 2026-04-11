@@ -1051,14 +1051,31 @@ app.use("/api", (_req, res) => {
   return res.status(404).json({ error: "route not found" });
 });
 
-app.use(express.static(clientDistPath, { index: false }));
+app.use(
+  express.static(clientDistPath, {
+    index: false,
+    setHeaders: (res, servedFilePath) => {
+      const relativePath = path.relative(clientDistPath, servedFilePath);
+      if (relativePath.startsWith(`assets${path.sep}`)) {
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }
+    },
+  }),
+);
 
 app.get("*", (req, res, next) => {
   if (req.path.startsWith("/api")) {
     return next();
   }
 
+  const requestsHtml = Boolean(req.accepts("html"));
+  const hasFileExtension = path.extname(req.path) !== "";
+  if (!requestsHtml || hasFileExtension) {
+    return res.status(404).send("Not found");
+  }
+
   if (existsSync(clientIndexPath)) {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     return res.sendFile(clientIndexPath);
   }
 
