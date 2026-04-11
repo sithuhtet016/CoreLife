@@ -31,7 +31,41 @@ const __dirname = path.dirname(__filename);
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
 const clientIndexPath = path.join(clientDistPath, "index.html");
 
-app.use(helmet());
+const supabaseOrigin = (() => {
+  const rawUrl = process.env.SUPABASE_URL?.trim();
+  if (!rawUrl) return null;
+
+  try {
+    return new URL(rawUrl).origin;
+  } catch {
+    return null;
+  }
+})();
+
+const defaultDirectives = helmet.contentSecurityPolicy.getDefaultDirectives();
+const connectSrc = new Set(defaultDirectives.connectSrc ?? ["'self'"]);
+const imgSrc = new Set(defaultDirectives.imgSrc ?? ["'self'", "data:"]);
+
+connectSrc.add("https://*.supabase.co");
+connectSrc.add("wss://*.supabase.co");
+if (supabaseOrigin) {
+  connectSrc.add(supabaseOrigin);
+}
+
+imgSrc.add("https://images.unsplash.com");
+imgSrc.add("https://storage.googleapis.com");
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        connectSrc: [...connectSrc],
+        imgSrc: [...imgSrc],
+      },
+    },
+  }),
+);
 app.use(cors());
 app.use(express.json());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
