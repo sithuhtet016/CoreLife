@@ -1,0 +1,110 @@
+export const lifeAreas = [
+  { id: 1, name: "Health" },
+  { id: 2, name: "Appearance" },
+  { id: 3, name: "Love" },
+  { id: 4, name: "Family" },
+  { id: 5, name: "Friends" },
+  { id: 6, name: "Career" },
+  { id: 7, name: "Money" },
+  { id: 8, name: "Self-Growth" },
+  { id: 9, name: "Spirituality" },
+  { id: 10, name: "Recreation" },
+  { id: 11, name: "Environment" },
+  { id: 12, name: "Community" },
+];
+
+const questionTexts = {
+  Health: [
+    "I sleep 7-8 hours consistently.",
+    "I exercise consistently each week.",
+    "My energy levels are stable.",
+    "I eat balanced meals most days.",
+    "I keep up with preventive health checkups.",
+  ],
+  Appearance: [
+    "I feel confident in my appearance.",
+    "I maintain good grooming habits.",
+    "My style represents me well.",
+    "I take care of my personal hygiene daily.",
+    "I feel comfortable in the clothes I wear.",
+  ],
+  Love: [
+    "I feel emotionally connected in love life.",
+    "I communicate openly with my partner.",
+    "I feel respected and valued.",
+    "I handle conflicts in a healthy way.",
+    "I make quality time for my relationship.",
+  ],
+  Family: [
+    "I have healthy communication with family.",
+    "I spend meaningful time with family.",
+    "I feel supported by family.",
+    "I set healthy boundaries with family members.",
+    "I resolve family tensions constructively.",
+  ],
+  Friends: [
+    "I have close and trusted friends.",
+    "I stay in touch with friends regularly.",
+    "My friendships feel balanced.",
+    "I feel comfortable asking friends for support.",
+    "I make effort to support my friends too.",
+  ],
+  Career: [
+    "I am growing in my career path.",
+    "I feel fulfilled by my work.",
+    "I have clarity about career goals.",
+    "I receive fair recognition for my work.",
+    "I maintain a healthy work-life balance.",
+  ],
+  Money: [
+    "I manage monthly budget effectively.",
+    "I save money consistently.",
+    "I feel financially secure.",
+    "I am reducing or managing debt responsibly.",
+    "I have a plan for long-term financial goals.",
+  ],
+  "Self-Growth": [
+    "I invest in learning regularly.",
+    "I reflect on my progress often.",
+    "I challenge myself to improve.",
+    "I step outside my comfort zone regularly.",
+    "I track and celebrate personal milestones.",
+  ],
+  Spirituality: [
+    "I have a regular reflection practice.",
+    "I feel aligned with my values.",
+    "I feel inner peace often.",
+    "I make time for gratitude or mindfulness.",
+    "I feel connected to a deeper sense of purpose.",
+  ],
+  Recreation: [
+    "I make time for hobbies.",
+    "I rest and recharge regularly.",
+    "I enjoy my free time intentionally.",
+    "I engage in activities that bring me joy.",
+    "I take breaks before reaching burnout.",
+  ],
+  Environment: [
+    "My home supports my goals.",
+    "My workspace helps me focus.",
+    "My surroundings feel organized.",
+    "I keep my key spaces clean and functional.",
+    "My environment helps me feel calm and motivated.",
+  ],
+  Community: [
+    "I contribute to my community.",
+    "I feel connected to people around me.",
+    "I participate in meaningful causes.",
+    "I build positive relationships with neighbors or peers.",
+    "I feel that my presence makes a positive difference.",
+  ],
+};
+
+export const questions = lifeAreas.flatMap((area) =>
+  questionTexts[area.name].map((text, idx) => ({
+    id: area.id * 100 + idx + 1,
+    life_area_id: area.id,
+    text,
+    order_index: idx + 1,
+  })),
+);

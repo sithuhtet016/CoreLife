@@ -1,0 +1,292 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* Typography */
+  font-family: "Inter", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  color: #111827;
+  background: #f3f4f6;
+
+  /* Colors */
+  --cl-bg-app: #f3f4f6;
+  --cl-bg-gradient-start: #e0e7ff;
+  --cl-bg-gradient-end: #f3e8ff;
+  --cl-primary: #3b82f6;
+  --cl-primary-hover: #2563eb;
+  --cl-primary-strong: #1e40af;
+  --cl-primary-deep: #1e3a8a;
+  --cl-primary-deeper: #1d4ed8;
+  --cl-primary-tint: #eff6ff;
+  --cl-primary-border: #dbeafe;
+  --cl-primary-soft: #bfdbfe;
+  --cl-primary-soft-strong: #93c5fd;
+  --cl-primary-mid: #60a5fa;
+  --cl-text: #111827;
+  --cl-text-muted: #4b5563;
+  --cl-text-subtle: #6b7280;
+  --cl-text-faint: #9ca3af;
+  --cl-border: #e5e7eb;
+  --cl-border-soft: #f3f4f6;
+  --cl-border-strong: #d1d5db;
+  --cl-border-slate: #e2e8f0;
+  --cl-border-alt: #f1f3f7;
+  --cl-slate-muted: #cbd5e1;
+  --cl-surface: #ffffff;
+  --cl-surface-alt: #f9fafb;
+  --cl-surface-slate: #f8fafc;
+  --cl-surface-blue: #f8fbff;
+  --cl-success: #22c55e;
+  --cl-success-strong: #16a34a;
+  --cl-success-soft: #4ade80;
+  --cl-success-text: #166534;
+  --cl-success-tint: #f0fdf4;
+  --cl-success-border: #86efac;
+  --cl-danger: #dc2626;
+  --cl-danger-soft: #ef4444;
+  --cl-danger-border: #fecaca;
+  --cl-danger-tint: #fef2f2;
+  --cl-warning: #facc15;
+  --cl-purple: #a855f7;
+  --cl-accent-purple: #9333ea;
+  --cl-purple-tint: #faf5ff;
+  --cl-indigo: #6366f1;
+  --cl-indigo-tint: #eef2ff;
+  --cl-navbar-bg: rgba(243, 248, 255, 0.52);
+
+  /* Layout */
+  --cl-container-xl: 80rem;
+
+  /* Spacing Scale (in rem) */
+  --cl-spacing-xs: 0.25rem;
+  --cl-spacing-sm: 0.5rem;
+  --cl-spacing-md: 1rem;
+  --cl-spacing-lg: 1.5rem;
+  --cl-spacing-xl: 2rem;
+  --cl-spacing-2xl: 2.5rem;
+  --cl-spacing-3xl: 3rem;
+
+  /* Border Radius Scale */
+  --cl-radius-sm: 0.5rem;
+  --cl-radius-md: 0.75rem;
+  --cl-radius-lg: 1rem;
+  --cl-radius-xl: 1.5rem;
+  --cl-radius-2xl: 2rem;
+  --cl-radius-full: 9999px;
+
+  /* Shadows */
+  --cl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --cl-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --cl-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --cl-shadow-xl: 0 20px 60px -15px rgba(0, 0, 0, 0.1);
+  --cl-shadow-primary-sm: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+  --cl-shadow-primary-md: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  --cl-shadow-primary-lg: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+
+  /* Focus Ring */
+  --cl-ring: 0 0 0 3px rgba(59, 130, 246, 0.2);
+
+  /* Typography Scale */
+  --cl-text-xs: 0.75rem;
+  --cl-text-sm: 0.875rem;
+  --cl-text-base: 1rem;
+  --cl-text-lg: 1.125rem;
+  --cl-text-xl: 1.25rem;
+  --cl-text-2xl: 1.5rem;
+  --cl-text-3xl: 1.875rem;
+  --cl-text-4xl: 2.25rem;
+  --cl-text-5xl: 2.8rem;
+  --cl-text-6xl: 3.5rem;
+}
+
+html {
+  font-size: 15.5px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--cl-text);
+  background: var(--cl-bg-app);
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: var(--cl-ring);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 9999;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--cl-primary-deep);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--cl-shadow-md);
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+button,
+[type="button"],
+[type="submit"] {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: var(--cl-text);
+  letter-spacing: -0.02em;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.landing-root {
+  --cl-navbar-bg: rgba(255, 255, 255, 0.62);
+}
+
+.login-page {
+  --cl-navbar-bg: rgba(236, 231, 255, 0.5);
+}
+
+.register-page {
+  --cl-navbar-bg: rgba(239, 233, 255, 0.5);
+}
+
+.auth-required-page {
+  --cl-navbar-bg: rgba(237, 233, 255, 0.49);
+}
+
+.assessment-page {
+  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+}
+
+.assessment2-page {
+  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+}
+
+.assessment3-page {
+  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+}
+
+.dashboard-page {
+  --cl-navbar-bg: rgba(242, 248, 255, 0.66);
+}
+
+.habit-tracker-page {
+  --cl-navbar-bg: rgba(239, 248, 244, 0.66);
+}
+
+.progress-analytics-page {
+  --cl-navbar-bg: rgba(238, 245, 255, 0.66);
+}
+
+.results-page {
+  --cl-navbar-bg: rgba(244, 247, 255, 0.66);
+}
+
+.settings-page {
+  --cl-navbar-bg: rgba(249, 251, 255, 0.7);
+}
+
+.legal-page {
+  --cl-navbar-bg: rgba(252, 253, 255, 0.74);
+}
+
+.cl-navbar-surface {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.38),
+      rgba(255, 255, 255, 0.12) 40%,
+      rgba(255, 255, 255, 0.04)
+    ),
+    var(--cl-navbar-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: none;
+}
+
+.cl-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-decoration: none;
+  color: var(--cl-text);
+}
+
+.cl-brand-icon {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 0.65rem;
+  background: var(--cl-primary);
+  color: var(--cl-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  transition: transform 180ms ease;
+}
+
+.cl-brand-icon-svg {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.cl-brand-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.cl-brand-link:hover .cl-brand-icon,
+.cl-brand-link:focus-visible .cl-brand-icon {
+  transform: translateY(-1px) scale(1.04);
+}
+
+@media (max-width: 640px) {
+  .cl-brand-icon {
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  .cl-brand-text {
+    font-size: 1.08rem;
+  }
+}

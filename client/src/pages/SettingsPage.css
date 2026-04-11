@@ -1,0 +1,99 @@
+.settings-page {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color: var(--cl-text);
+  background: #f3f4f6;
+}
+
+.settings-page ::-webkit-scrollbar {
+  display: none;
+}
+
+.legal-page section[id] {
+  scroll-margin-top: calc(4.5rem + 1rem);
+}
+
+.dash-card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f3f4f6;
+}
+
+.dash-card-dark {
+  background-color: #111827;
+  border-radius: 24px;
+  padding: 24px;
+  color: #ffffff;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #3b82f6;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #3b82f6;
+}
+
+.toggle-checkbox:checked + .toggle-label:after {
+  transform: translateX(100%);
+  border-color: white;
+}
+
+.toggle-label {
+  width: 44px;
+  height: 24px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-label:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.custom-radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.custom-radio:checked {
+  border-color: #3b82f6;
+}
+
+.custom-radio:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+}
