@@ -37,7 +37,7 @@ API routes and the built React app from one domain.
 2. In Render, create a new **Web Service** from the repository.
 3. Use `render.yaml` or configure the same commands manually:
 
-- Build: `npm ci && npm ci --prefix client && npm ci --prefix server && npm run build --prefix client`
+- Build: `npm ci --include=dev && npm ci --prefix client --include=dev && npm ci --prefix server --include=dev && npm run build --prefix client`
 - Start: `npm run start --prefix server`
 
 ### 2. Set Render Environment Variables

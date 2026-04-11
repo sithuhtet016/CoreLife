@@ -2,6 +2,6 @@ services:
   - type: web
     name: corelife
     env: node
-    buildCommand: npm ci && npm ci --prefix client && npm ci --prefix server && npm run build --prefix client
+    buildCommand: npm ci --include=dev && npm ci --prefix client --include=dev && npm ci --prefix server --include=dev && npm run build --prefix client
     startCommand: npm run start --prefix server
     healthCheckPath: /api/health
