@@ -51,7 +51,6 @@
   justify-content: center;
   font-size: 1.25rem;
   box-shadow: var(--cl-shadow-primary-sm);
-  transition: transform 150ms;
 }
 
 .register-brand-link:hover .register-brand-box {
@@ -169,7 +168,6 @@
   font-size: var(--cl-text-sm);
   padding: var(--cl-spacing-md) var(--cl-spacing-lg);
   outline: none;
-  transition: all 150ms;
 }
 
 .register-field input::placeholder {
@@ -255,7 +253,6 @@
   font-weight: 700;
   padding: var(--cl-spacing-md);
   box-shadow: var(--cl-shadow-primary-sm);
-  transition: all 150ms;
 }
 
 .register-submit-btn:hover {

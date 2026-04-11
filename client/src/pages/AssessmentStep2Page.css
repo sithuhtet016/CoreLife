@@ -355,9 +355,6 @@
   border-radius: 16px;
   padding: 1.25rem;
   background: var(--cl-surface);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
 }
 
 .rating-card:hover {
@@ -412,7 +409,6 @@
   color: var(--cl-text-muted);
   font-size: 1rem;
   font-weight: 600;
-  transition: all 0.2s ease;
   background: var(--cl-surface);
 }
 
@@ -462,7 +458,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
 }
 
 .assessment2-btn-secondary {

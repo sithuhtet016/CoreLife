@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   /* Typography */
   font-family: "Inter", "Segoe UI", sans-serif;
@@ -113,17 +117,30 @@ body {
   background: var(--cl-bg-app);
 }
 
+.score-circle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(var(--cl-primary) 72%, #e5e7eb 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-circle::before {
+  content: "";
+  position: absolute;
+  inset: 15px;
+  background-color: #fff;
+  border-radius: 50%;
+}
+
 a,
 button,
 input,
 select,
 textarea {
-  transition:
-    color 150ms ease,
-    background-color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
 }
 
 a:focus-visible,
@@ -261,7 +278,6 @@ h4 {
   align-items: center;
   justify-content: center;
   box-shadow: none;
-  transition: transform 180ms ease;
 }
 
 .cl-brand-icon-svg {

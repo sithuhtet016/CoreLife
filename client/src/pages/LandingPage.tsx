@@ -117,7 +117,7 @@ function LandingPage() {
 
   const handleHomeClick = () => {
     // Give immediate feedback when already on the home route.
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
 
   const handlePreviousTestimonials = () => {

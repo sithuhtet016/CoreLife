@@ -45,6 +45,7 @@ const supabaseOrigin = (() => {
 const defaultDirectives = helmet.contentSecurityPolicy.getDefaultDirectives();
 const connectSrc = new Set(defaultDirectives.connectSrc ?? ["'self'"]);
 const imgSrc = new Set(defaultDirectives.imgSrc ?? ["'self'", "data:"]);
+const scriptSrc = new Set(defaultDirectives.scriptSrc ?? ["'self'"]);
 
 connectSrc.add("https://*.supabase.co");
 connectSrc.add("wss://*.supabase.co");
@@ -55,6 +56,9 @@ if (supabaseOrigin) {
 imgSrc.add("https://images.unsplash.com");
 imgSrc.add("https://storage.googleapis.com");
 
+// Plotly is loaded from CDN for chart rendering.
+scriptSrc.add("https://cdn.plot.ly");
+
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -62,6 +66,7 @@ app.use(
       directives: {
         connectSrc: [...connectSrc],
         imgSrc: [...imgSrc],
+        scriptSrc: [...scriptSrc],
       },
     },
   }),

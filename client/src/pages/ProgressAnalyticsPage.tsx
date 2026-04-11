@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
 import HeaderUserMenu from "../components/HeaderUserMenu";
+import { ensurePlotlyLoaded } from "../utils/loadPlotly";
 import "./ProgressAnalyticsPage.css";
 
 declare global {
@@ -159,13 +160,9 @@ function ProgressAnalyticsPage() {
       });
     };
 
-    initializeCharts();
-    const delayedInit = window.setTimeout(initializeCharts, 1200);
-
-    const delayedResize = window.setTimeout(() => {
-      resizeCharts();
-      window.setTimeout(resizeCharts, 500);
-    }, 300);
+    let isActive = true;
+    let delayedInit = 0;
+    let delayedResize = 0;
 
     let resizeTimer = 0;
     let lastWidth = 0;
@@ -184,7 +181,34 @@ function ProgressAnalyticsPage() {
 
     observer.observe(document.documentElement);
 
+    const bootstrapCharts = async () => {
+      try {
+        await ensurePlotlyLoaded();
+      } catch (error) {
+        console.error("Failed to load Plotly:", error);
+        return;
+      }
+
+      if (!isActive) return;
+
+      initializeCharts();
+      delayedInit = window.setTimeout(() => {
+        if (isActive) initializeCharts();
+      }, 1200);
+
+      delayedResize = window.setTimeout(() => {
+        if (!isActive) return;
+        resizeCharts();
+        window.setTimeout(() => {
+          if (isActive) resizeCharts();
+        }, 500);
+      }, 300);
+    };
+
+    void bootstrapCharts();
+
     return () => {
+      isActive = false;
       observer.disconnect();
       window.clearTimeout(delayedInit);
       window.clearTimeout(delayedResize);

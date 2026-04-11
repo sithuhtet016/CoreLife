@@ -338,7 +338,6 @@
   font-size: 0.875rem;
   padding: 1rem 1.25rem;
   outline: none;
-  transition: all 150ms;
 }
 
 .assessment-field input::placeholder {
@@ -430,7 +429,6 @@
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  transition: all 150ms;
 }
 
 .life-area-card:hover .area-card-ui {
@@ -451,7 +449,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 150ms;
   flex-shrink: 0;
 }
 
@@ -519,7 +516,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
 }
 
 .assessment-btn-light,

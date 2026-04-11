@@ -46,7 +46,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: var(--cl-shadow-primary-sm);
-  transition: transform 150ms;
 }
 
 .auth-required-brand-link:hover .auth-required-brand-box {
