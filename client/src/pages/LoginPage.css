@@ -246,7 +246,7 @@
   border: 0;
   border-radius: var(--cl-radius-full);
   color: var(--cl-surface);
-  background: var(--cl-primary);
+  background: var(--cl-primary-strong);
   font-size: var(--cl-text-sm);
   font-weight: 700;
   padding: 1rem;
@@ -254,7 +254,7 @@
 }
 
 .signin-btn:hover {
-  background: var(--cl-primary-hover);
+  background: var(--cl-primary-deep);
   transform: translateY(-1px);
 }
 
@@ -277,6 +277,43 @@
   text-align: left;
 }
 
+.auth-info-center {
+  text-align: center;
+}
+
+.login-otp-panel {
+  display: grid;
+  gap: var(--cl-spacing-sm);
+  border: 1px solid var(--cl-border);
+  border-radius: var(--cl-radius-lg);
+  background: var(--cl-surface-alt);
+  padding: var(--cl-spacing-md);
+}
+
+.login-otp-meta {
+  margin-bottom: 0;
+}
+
+.login-otp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cl-spacing-sm);
+}
+
+.otp-link-btn {
+  border: 1px solid var(--cl-primary-soft);
+  border-radius: var(--cl-radius-full);
+  background: var(--cl-surface);
+  color: var(--cl-primary);
+  font-size: var(--cl-text-xs);
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+}
+
+.otp-link-btn:disabled {
+  opacity: 0.72;
+}
+
 .signup-copy {
   margin: var(--cl-spacing-2xl) 0 0;
   text-align: center;
@@ -286,16 +323,16 @@
 
 .signup-copy a {
   margin-left: 0.35rem;
-  color: var(--cl-primary);
+  color: var(--cl-primary-deep);
   font-weight: 700;
   text-decoration: underline;
-  text-decoration-color: var(--cl-primary-soft);
+  text-decoration-color: var(--cl-primary-strong);
   text-underline-offset: 4px;
 }
 
 .signup-copy a:hover {
-  color: var(--cl-primary-hover);
-  text-decoration-color: var(--cl-primary);
+  color: var(--cl-primary-deep);
+  text-decoration-color: var(--cl-primary-strong);
 }
 
 .auth-footer {

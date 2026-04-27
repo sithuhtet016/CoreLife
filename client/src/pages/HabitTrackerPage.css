@@ -176,3 +176,131 @@
   }
 }
 
+/* Habit toggle animations */
+.habit-toggle {
+  transition:
+    background-color 160ms ease,
+    transform 140ms ease;
+  will-change: transform, background-color;
+}
+.habit-toggle:active {
+  transform: scale(0.94);
+}
+
+.habit-toggle .check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.78) rotate(-6deg);
+  opacity: 0;
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    opacity 160ms ease;
+}
+
+.habit-toggle .check-icon .check-svg {
+  display: block;
+}
+
+.habit-toggle.completed .check-icon {
+  transform: scale(1.12) rotate(0deg);
+  opacity: 1;
+}
+
+/* Ensure the check SVG is perfectly centered visually */
+.habit-toggle .check-icon {
+  width: 100%;
+  height: 100%;
+  line-height: 0;
+}
+.habit-toggle .check-icon .check-svg {
+  display: block;
+  width: 1.35rem; /* slightly larger check */
+  height: 1.35rem;
+  transform-origin: center;
+  transform: translateY(0);
+}
+.habit-toggle.completed .check-icon .check-svg {
+  transform: translateY(0);
+}
+
+.habit-toggle .dot {
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1),
+    opacity 140ms ease,
+    border-color 140ms ease;
+}
+
+.habit-toggle.completed .dot {
+  transform: scale(0.3);
+  opacity: 0;
+  border-color: transparent;
+}
+
+/* subtle pop when checking */
+@keyframes habit-pop {
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.habit-toggle.completed {
+  animation: habit-pop 260ms ease;
+}
+
+/* extra sparkles/pop helpers for a cute effect */
+.habit-toggle {
+  position: relative;
+}
+.habit-toggle .sparkles {
+  position: absolute;
+  pointer-events: none;
+  inset: -6px -6px auto auto;
+  width: 0;
+  height: 0;
+}
+.habit-toggle .sparkles::before,
+.habit-toggle .sparkles::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.12) 60%
+  );
+  border-radius: 50%;
+  opacity: 0;
+}
+.habit-toggle.completed .sparkles::before {
+  left: -4px;
+  top: -4px;
+  animation: habit-pop-spark 420ms ease-out forwards;
+}
+.habit-toggle.completed .sparkles::after {
+  right: -4px;
+  top: -6px;
+  animation: habit-pop-spark 420ms 60ms ease-out forwards;
+}
+@keyframes habit-pop-spark {
+  0% {
+    transform: scale(0.32);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}

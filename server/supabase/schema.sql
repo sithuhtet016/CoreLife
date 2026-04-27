@@ -14,6 +14,42 @@ alter table if exists users
   add column if not exists promo_email_opt_in boolean not null default false,
   add column if not exists promo_email_opt_in_at timestamptz;
 
+create table if not exists promotional_subscribers (
+  id uuid primary key default gen_random_uuid(),
+  email text unique not null,
+  full_name text,
+  user_id uuid references users(id) on delete set null,
+  source text not null default 'register',
+  subscribed_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_promotional_subscribers_user_id
+  on promotional_subscribers(user_id);
+
+create table if not exists login_otp_challenges (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  email text not null,
+  otp_hash text not null,
+  access_token text not null,
+  refresh_token text not null,
+  attempt_count int not null default 0,
+  expires_at timestamptz not null,
+  consumed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_login_otp_challenges_user_id
+  on login_otp_challenges(user_id);
+
+create index if not exists idx_login_otp_challenges_email
+  on login_otp_challenges(email);
+
+create index if not exists idx_login_otp_challenges_expires_at
+  on login_otp_challenges(expires_at);
+
 create table if not exists life_areas (
   id int primary key,
   name text not null unique
@@ -40,8 +76,31 @@ create table if not exists assessment_sessions (
   status assessment_status not null default 'in_progress',
   started_at timestamptz not null default now(),
   completed_at timestamptz,
+  age int check (age > 0),
+  primary_goal text,
+  selected_area_ids int[] not null default '{}'::int[],
+  confidence int check (confidence between 1 and 10),
+  priorities text[] not null default '{}'::text[],
+  time_commitment_minutes int check (time_commitment_minutes > 0),
   overall_score float,
   area_scores jsonb not null default '{}'::jsonb
+);
+
+alter table if exists assessment_sessions
+  add column if not exists age int,
+  add column if not exists primary_goal text,
+  add column if not exists selected_area_ids int[] not null default '{}'::int[],
+  add column if not exists confidence int,
+  add column if not exists priorities text[] not null default '{}'::text[],
+  add column if not exists time_commitment_minutes int;
+
+create table if not exists assessment_drafts (
+  user_id uuid primary key references users(id) on delete cascade,
+  step int not null check (step between 1 and 3),
+  route text not null,
+  draft jsonb not null default '{}'::jsonb,
+  saved_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists answers (

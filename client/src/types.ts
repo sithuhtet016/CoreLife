@@ -16,8 +16,23 @@ export type AssessmentSession = {
   status: "in_progress" | "completed";
   started_at: string;
   completed_at: string | null;
+  age: number | null;
+  primary_goal: string | null;
+  selected_area_ids: number[];
+  confidence: number | null;
+  priorities: string[];
+  time_commitment_minutes: number | null;
   overall_score: number | null;
   area_scores: Record<number, number>;
+};
+
+export type AssessmentMetadataInput = {
+  age?: number | null;
+  primaryGoal?: string | null;
+  selectedAreaIds?: number[];
+  confidence?: number | null;
+  priorities?: string[];
+  timeCommitmentMinutes?: number | null;
 };
 
 export type AnswerInput = {
@@ -35,6 +50,15 @@ export type Habit = {
   created_at: string;
   streak: number;
   weekly_consistency: number;
+  completed_today?: boolean;
+};
+
+export type HabitSummary = {
+  totalHabits: number;
+  completedTodayCount: number;
+  currentStreak: number;
+  bestStreak: number;
+  weeklyActivity: boolean[];
 };
 
 export type ComparisonRow = {
@@ -43,6 +67,15 @@ export type ComparisonRow = {
   previous_score: number;
   latest_score: number;
   change: number;
+};
+
+export type Recommendation = {
+  id: string;
+  life_area_id: number | null;
+  life_area_name?: string | null;
+  priority: "high" | "suggestion";
+  title: string;
+  description: string;
 };
 
 export type AuthUser = {

@@ -9,21 +9,21 @@
   font-family: "Inter", "Segoe UI", sans-serif;
   line-height: 1.5;
   color: #111827;
-  background: #f3f4f6;
+  background: #f8fbff;
 
   /* Colors */
-  --cl-bg-app: #f3f4f6;
-  --cl-bg-gradient-start: #e0e7ff;
-  --cl-bg-gradient-end: #f3e8ff;
+  --cl-bg-app: #f8fbff;
+  --cl-bg-gradient-start: #eff6ff;
+  --cl-bg-gradient-end: #dbeafe;
   --cl-primary: #3b82f6;
   --cl-primary-hover: #2563eb;
-  --cl-primary-strong: #1e40af;
-  --cl-primary-deep: #1e3a8a;
-  --cl-primary-deeper: #1d4ed8;
+  --cl-primary-strong: #1d4ed8;
+  --cl-primary-deep: #1e40af;
+  --cl-primary-deeper: #1e3a8a;
   --cl-primary-tint: #eff6ff;
-  --cl-primary-border: #dbeafe;
-  --cl-primary-soft: #bfdbfe;
-  --cl-primary-soft-strong: #93c5fd;
+  --cl-primary-border: #bfdbfe;
+  --cl-primary-soft: #93c5fd;
+  --cl-primary-soft-strong: #60a5fa;
   --cl-primary-mid: #60a5fa;
   --cl-text: #111827;
   --cl-text-muted: #4b5563;
@@ -36,9 +36,9 @@
   --cl-border-alt: #f1f3f7;
   --cl-slate-muted: #cbd5e1;
   --cl-surface: #ffffff;
-  --cl-surface-alt: #f9fafb;
-  --cl-surface-slate: #f8fafc;
-  --cl-surface-blue: #f8fbff;
+  --cl-surface-alt: #f7fbff;
+  --cl-surface-slate: #f4f8ff;
+  --cl-surface-blue: #eff6ff;
   --cl-success: #22c55e;
   --cl-success-strong: #16a34a;
   --cl-success-soft: #4ade80;
@@ -50,12 +50,12 @@
   --cl-danger-border: #fecaca;
   --cl-danger-tint: #fef2f2;
   --cl-warning: #facc15;
-  --cl-purple: #a855f7;
-  --cl-accent-purple: #9333ea;
-  --cl-purple-tint: #faf5ff;
-  --cl-indigo: #6366f1;
-  --cl-indigo-tint: #eef2ff;
-  --cl-navbar-bg: rgba(243, 248, 255, 0.52);
+  --cl-purple: #3b82f6;
+  --cl-accent-purple: #2563eb;
+  --cl-purple-tint: #eff6ff;
+  --cl-indigo: #1d4ed8;
+  --cl-indigo-tint: #dbeafe;
+  --cl-navbar-bg: rgba(239, 246, 255, 0.58);
 
   /* Layout */
   --cl-container-xl: 80rem;
@@ -88,6 +88,24 @@
 
   /* Focus Ring */
   --cl-ring: 0 0 0 3px rgba(59, 130, 246, 0.2);
+
+  /* Primary Color with Opacities */
+  --cl-primary-alpha-10: rgba(59, 130, 246, 0.1);
+  --cl-primary-alpha-30: rgba(59, 130, 246, 0.3);
+
+  /* Danger/Error Color Variations (from --cl-danger-soft: #ef4444) */
+  --cl-danger-soft-alpha-5: rgba(239, 68, 68, 0.05);
+  --cl-danger-soft-alpha-8: rgba(239, 68, 68, 0.08);
+  --cl-danger-soft-alpha-20: rgba(239, 68, 68, 0.2);
+  --cl-danger-soft-alpha-30: rgba(239, 68, 68, 0.3);
+
+  /* White Color with Opacities */
+  --cl-white-10: rgba(255, 255, 255, 0.1);
+  --cl-white-20: rgba(255, 255, 255, 0.2);
+  --cl-white-60: rgba(255, 255, 255, 0.6);
+  --cl-white-75: rgba(255, 255, 255, 0.75);
+  --cl-white-80: rgba(255, 255, 255, 0.8);
+  --cl-white-90: rgba(255, 255, 255, 0.9);
 
   /* Typography Scale */
   --cl-text-xs: 0.75rem;
@@ -175,10 +193,138 @@ textarea:focus-visible,
   top: 1rem;
 }
 
-button,
-[type="button"],
-[type="submit"] {
-  font: inherit;
+@layer base {
+  button,
+  [type="button"],
+  [type="submit"] {
+    font: inherit;
+    appearance: none;
+    border: 1px solid transparent;
+  }
+}
+
+/* CoreLife component utilities (tokens-first) */
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: var(--cl-radius-md);
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cl-text);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn--primary {
+  background: var(--cl-primary);
+  color: var(--cl-surface);
+  box-shadow: var(--cl-shadow-primary-sm);
+  border-color: transparent;
+  border-radius: var(--cl-radius-full);
+  padding: 0.65rem 1.25rem;
+}
+.btn--primary:hover {
+  background: var(--cl-primary-hover);
+  transform: translateY(-1px);
+}
+.btn--secondary {
+  background: transparent;
+  border: 1px solid var(--cl-border);
+  color: var(--cl-text-muted);
+  border-radius: var(--cl-radius-md);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--cl-primary);
+  border: 1px solid transparent;
+}
+.hero-cta .btn--primary {
+  padding: 0.9rem 1.6rem;
+  font-size: var(--cl-text-lg);
+  box-shadow: var(--cl-shadow-primary-md);
+  overflow: hidden;
+  position: relative;
+}
+.hero-cta .btn--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0)
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Forms / Inputs */
+.form-input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--cl-radius-md);
+  background: var(--cl-surface-alt);
+  border: 1px solid var(--cl-border);
+  color: var(--cl-text);
+  transition:
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
+}
+.form-input:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--cl-primary);
+  box-shadow: var(--cl-ring);
+}
+
+/* Cards, panels, and glass shells */
+.card {
+  background: var(--cl-surface);
+  border: 1px solid var(--cl-border-slate);
+  border-radius: var(--cl-radius-lg);
+  box-shadow: var(--cl-shadow-sm);
+  padding: var(--cl-spacing-md);
+}
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: var(--cl-radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: var(--cl-spacing-lg);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--cl-radius-full);
+  background: var(--cl-primary-tint);
+  color: var(--cl-primary);
+  border: 1px solid var(--cl-primary-border);
+  font-weight: 600;
+  font-size: var(--cl-text-xs);
 }
 
 h1,
@@ -305,4 +451,10 @@ h4 {
   .cl-brand-text {
     font-size: 1.08rem;
   }
+}
+
+/* Header / navbar links: ensure no underlines on nav links (fixes results page nav underline) */
+#app-header a,
+header a {
+  text-decoration: none;
 }

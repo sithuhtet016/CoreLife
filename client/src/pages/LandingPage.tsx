@@ -71,7 +71,7 @@ function LandingPage() {
   useEffect(() => {
     const revealTargets = Array.from(
       document.querySelectorAll<HTMLElement>(
-        ".features-section, .testimonials-section, .landing-cta-section, .section-intro, .feature-card, .testimonials-head, .testimonial-card, .cta-inner",
+        ".hero-copy, .hero-visuals, .features-section, .testimonials-section, .landing-cta-section, .section-intro, .feature-card, .testimonials-head, .testimonial-card, .cta-inner",
       ),
     );
 
@@ -144,7 +144,7 @@ function LandingPage() {
         <div className="landing-container landing-header-inner">
           <BrandLogo to="/" onClick={handleHomeClick} />
 
-          <nav className="landing-header-actions">
+          <nav className="landing-header-actions" aria-label="Primary">
             <Link to="/login" className="header-login">
               Log In
             </Link>
@@ -297,10 +297,10 @@ function LandingPage() {
           <div className="landing-container">
             <div className="section-intro">
               <h2>Everything you need to grow</h2>
-              <h1>
+              <p className="section-intro-copy">
                 A comprehensive toolkit designed to help you understand
                 yourself, build positive routines, and track your evolution.
-              </h1>
+              </p>
             </div>
 
             <div className="feature-grid">
@@ -398,7 +398,9 @@ function LandingPage() {
                   <div className="testimonial-user">
                     <img src={testimonial.avatar} alt={testimonial.name} />
                     <div>
-                      <h4>{testimonial.name}</h4>
+                      <p className="testimonial-user-name">
+                        {testimonial.name}
+                      </p>
                       <p>{testimonial.role}</p>
                     </div>
                   </div>
@@ -438,13 +440,15 @@ function LandingPage() {
             <span>CoreLife</span>
           </Link>
 
-          <nav className="landing-footer-links">
+          <nav className="landing-footer-links" aria-label="Footer">
             <Link to="/legal#privacy">Privacy Policy</Link>
             <Link to="/legal#terms">Terms of Service</Link>
             <Link to="/legal#support">Contact Support</Link>
           </nav>
 
-          <p>© 2026 CoreLife. All rights reserved.</p>
+          <p className="landing-footer-copy">
+            © 2026 CoreLife. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

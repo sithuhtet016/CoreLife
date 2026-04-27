@@ -176,7 +176,6 @@
 .assessment3-side-brand span:last-child {
   color: var(--cl-text);
   font-size: 1.125rem;
-  line-height: 1.75rem;
   font-weight: 700;
 }
 
@@ -373,11 +372,13 @@
   height: 3rem;
   margin: 0 auto 1rem;
   border-radius: 1rem;
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--cl-primary);
-  background: var(--cl-primary-tint);
+  background: linear-gradient(180deg, #f8fbff 0%, var(--cl-primary-tint) 100%);
   border: 1px solid var(--cl-primary-border);
+  box-shadow: 0 10px 18px -10px rgba(37, 99, 235, 0.45);
 }
 
 .assessment3-title-icon svg {
@@ -444,10 +445,16 @@
   background: linear-gradient(
     to right,
     var(--cl-primary) 0%,
-    var(--cl-primary) 66.6667%,
-    var(--cl-border) 66.6667%,
+    var(--cl-primary) var(--assessment3-confidence-progress, 66.6667%),
+    var(--cl-border) var(--assessment3-confidence-progress, 66.6667%),
     var(--cl-border) 100%
   );
+}
+
+.assessment3-range-wrap input[type="range"]::-moz-range-progress {
+  height: 6px;
+  border-radius: 4px;
+  background: var(--cl-primary);
 }
 
 .assessment3-range-wrap input[type="range"]::-webkit-slider-runnable-track {
@@ -491,6 +498,22 @@
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: 500;
+}
+
+.assessment3-feedback {
+  margin: 0.75rem 0 0;
+  border: 1px solid var(--cl-border-slate);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  background: rgba(248, 250, 252, 0.75);
+  color: var(--cl-text-muted);
+  font-size: 0.84rem;
+}
+
+.assessment3-feedback.error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 
 .assessment3-priority-grid {
@@ -570,21 +593,43 @@
 }
 
 .priority-check {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 999px;
-  border: 1px solid var(--cl-border-strong);
+  border: 1px solid var(--cl-primary-soft);
   background: var(--cl-surface);
   display: grid;
   place-items: center;
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 6px rgba(148, 163, 184, 0.28);
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .priority-check svg {
-  width: 0.625rem;
-  height: 0.625rem;
-  color: var(--cl-primary);
+  width: 0.64rem;
+  height: 0.64rem;
+  color: var(--cl-surface);
+  position: absolute;
   opacity: 0;
-  transform: scale(0);
+  transform: scale(0.45) rotate(-18deg);
+  transition:
+    opacity 0.18s ease,
+    transform 0.24s ease;
+}
+
+.priority-checkbox:hover > div .priority-check {
+  border-color: var(--cl-primary);
+  transform: translateY(-1px);
+}
+
+.priority-checkbox input:focus-visible + div .priority-check {
+  box-shadow: var(--cl-ring);
 }
 
 .priority-checkbox input:checked + div {
@@ -592,9 +637,16 @@
   background: var(--cl-primary-tint);
 }
 
+.priority-checkbox input:checked + div .priority-check {
+  border-color: var(--cl-primary);
+  background: var(--cl-primary);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px) scale(1.03);
+}
+
 .priority-checkbox input:checked + div .priority-check svg {
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1) rotate(0deg);
 }
 
 .assessment3-time-grid {
@@ -717,6 +769,11 @@
   background: var(--cl-primary-hover);
 }
 
+.assessment3-btn-primary:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
 .assessment3-btn-primary svg {
   width: 0.75rem;
   height: 0.75rem;
@@ -761,7 +818,7 @@
   }
 
   .assessment3-priority-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(18.5rem, 1fr));
   }
 
   .assessment3-actions {
@@ -791,7 +848,10 @@
     border-bottom: 0;
   }
 
-  .assessment3-side-brand,
+  .assessment3-side-brand {
+    display: flex;
+  }
+
   .assessment3-aside-card {
     display: block;
   }

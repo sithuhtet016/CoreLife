@@ -1,13 +1,14 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { register } from "../api";
+import { register, resendRegistrationOtp, verifyRegistrationOtp } from "../api";
 import { syncGuestDraftToAccount } from "../assessmentDraft";
 import BrandLogo from "../components/BrandLogo";
 import "./RegisterPage.css";
 
 type AuthRedirectState = {
   from?: string;
+  intent?: "save-assessment" | "assessment-complete";
 };
 
 function RegisterPage() {
@@ -16,22 +17,50 @@ function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [requiresEmailVerification, setRequiresEmailVerification] =
+    useState(false);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<
+    string | null
+  >(null);
+  const [otpCode, setOtpCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isResendingOtp, setIsResendingOtp] = useState(false);
   const redirectState = location.state as AuthRedirectState | null;
   const redirectTo = redirectState?.from ?? "/assessment";
+  const isAssessmentCompletionIntent =
+    redirectState?.intent === "assessment-complete" ||
+    redirectTo === "/results";
+
+  const syncDraftAfterRegistration = async () => {
+    try {
+      await syncGuestDraftToAccount({
+        completeAssessment: isAssessmentCompletionIntent,
+      });
+    } catch (error) {
+      console.error(
+        "Account created but failed to sync guest assessment draft:",
+        error,
+      );
+    }
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (isSubmitting) return;
     setErrorMessage(null);
+    setSuccessMessage(null);
+    setRequiresEmailVerification(false);
+    setPendingVerificationEmail(null);
+    setOtpCode("");
 
     const formData = new FormData(event.currentTarget);
     const fullName = String(formData.get("name") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const confirmPassword = String(formData.get("confirm-password") ?? "");
-    const receivePromoEmails = formData.get("receive-tips") === "on";
 
     if (!fullName) {
       setErrorMessage("Full name is required");
@@ -50,12 +79,21 @@ function RegisterPage() {
 
     setIsSubmitting(true);
     try {
-      await register(email, password, {
+      const result = await register(email, password, {
         fullName,
-        promoEmailOptIn: receivePromoEmails,
         rememberMe: true,
       });
-      await syncGuestDraftToAccount();
+
+      if (result.requiresEmailVerification) {
+        setSuccessMessage(result.message);
+        setRequiresEmailVerification(true);
+        setPendingVerificationEmail(result.email);
+        setOtpCode("");
+        setIsSubmitting(false);
+        return;
+      }
+
+      await syncDraftAfterRegistration();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Registration failed";
@@ -66,6 +104,58 @@ function RegisterPage() {
 
     setIsSubmitting(false);
     navigate(redirectTo, { replace: true });
+  };
+
+  const handleVerifyOtp = async () => {
+    if (isVerifyingOtp) return;
+
+    if (!pendingVerificationEmail) {
+      setErrorMessage("Please create your account first.");
+      return;
+    }
+
+    if (!otpCode.trim()) {
+      setErrorMessage("Enter the OTP code sent to your email.");
+      return;
+    }
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsVerifyingOtp(true);
+
+    try {
+      await verifyRegistrationOtp(pendingVerificationEmail, otpCode);
+      await syncDraftAfterRegistration();
+      navigate(redirectTo, { replace: true });
+      return;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "OTP verification failed";
+      setErrorMessage(message);
+    }
+
+    setIsVerifyingOtp(false);
+  };
+
+  const handleResendOtp = async () => {
+    if (isResendingOtp || !pendingVerificationEmail) return;
+
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setIsResendingOtp(true);
+
+    try {
+      await resendRegistrationOtp(pendingVerificationEmail);
+      setSuccessMessage(
+        `A new OTP code was sent to ${pendingVerificationEmail}.`,
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to resend OTP";
+      setErrorMessage(message);
+    }
+
+    setIsResendingOtp(false);
   };
 
   return (
@@ -83,8 +173,16 @@ function RegisterPage() {
 
           <div className="register-content">
             <div className="register-title-wrap">
-              <h1>Create your account</h1>
-              <p>Join CoreLife to start your self-assessment journey.</p>
+              <h1>
+                {isAssessmentCompletionIntent
+                  ? "Create account to unlock your results"
+                  : "Create your account"}
+              </h1>
+              <p>
+                {isAssessmentCompletionIntent
+                  ? "You have completed your assessment as a guest. Create your account to save progress and view your results."
+                  : "Join CoreLife to start your self-assessment journey."}
+              </p>
             </div>
 
             <form className="register-form" onSubmit={handleSubmit}>
@@ -188,34 +286,81 @@ function RegisterPage() {
                 </div>
               </div>
 
-              <div className="register-options">
-                <label htmlFor="receive-tips" className="register-check-wrap">
-                  <input
-                    id="receive-tips"
-                    name="receive-tips"
-                    type="checkbox"
-                  />
-                  <span>
-                    Send me occasional tips and insights to improve my habits
-                    and assessment scores.
-                  </span>
-                </label>
-              </div>
-
               <button
                 type="submit"
                 className="register-submit-btn"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isVerifyingOtp || isResendingOtp}
               >
                 {isSubmitting ? "Creating Account..." : "Create Account"}
               </button>
 
               {errorMessage && <p className="register-error">{errorMessage}</p>}
+
+              {successMessage && (
+                <div
+                  className="register-success"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p>{successMessage}</p>
+                  {requiresEmailVerification && pendingVerificationEmail && (
+                    <div className="register-otp-panel">
+                      <label htmlFor="register-otp">Email OTP</label>
+                      <input
+                        id="register-otp"
+                        className="register-otp-input"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        placeholder="Enter 6-digit code"
+                        value={otpCode}
+                        onChange={(event) =>
+                          setOtpCode(event.target.value.replace(/\s+/g, ""))
+                        }
+                      />
+
+                      <p className="register-otp-hint">
+                        Code sent to {pendingVerificationEmail}
+                      </p>
+
+                      <p className="register-otp-hint">
+                        {isAssessmentCompletionIntent
+                          ? "Verify this OTP to continue directly to your results."
+                          : "Verify this OTP to continue to your assessment."}
+                      </p>
+
+                      <div className="register-otp-actions">
+                        <button
+                          type="button"
+                          className="register-otp-btn"
+                          onClick={handleVerifyOtp}
+                          disabled={isVerifyingOtp || isSubmitting}
+                        >
+                          {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="register-otp-link-btn"
+                          onClick={handleResendOtp}
+                          disabled={isResendingOtp || isSubmitting}
+                        >
+                          {isResendingOtp ? "Resending..." : "Resend OTP"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </form>
 
             <p className="register-login-copy">
               Already have an account?
-              <Link to="/login">Log in instead</Link>
+              <Link to="/login" state={{ from: redirectTo }}>
+                {isAssessmentCompletionIntent
+                  ? "Log in to view results"
+                  : "Log in instead"}
+              </Link>
             </p>
 
             <p className="register-note">

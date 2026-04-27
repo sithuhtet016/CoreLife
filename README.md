@@ -112,6 +112,26 @@ so those emails are sent by Supabase SMTP settings.
 5. Set sender email/name to your verified domain values.
 6. Save and send a test password-reset email from the app.
 
+### 4. Switch Supabase Confirm Sign Up Email To OTP Content
+
+If your registration flow asks users to enter an email OTP code, your Supabase
+"Confirm sign up" template should include `{{ .Token }}` as the primary action.
+
+1. In Supabase Dashboard, open **Authentication** > **Email** > **Confirm sign up**.
+2. Subject suggestion: `Your CoreLife signup verification code`.
+3. Replace the email body with the template in:
+
+- `supabase/email-templates/confirm-sign-up-otp.html`
+
+4. (Optional) Use the text fallback version from:
+
+- `supabase/email-templates/confirm-sign-up-otp.txt`
+
+5. Save changes and register with a new email to verify OTP delivery.
+
+Note: The template still includes `{{ .ConfirmationURL }}` as a fallback link,
+but OTP (`{{ .Token }}`) is the main path to match the app's OTP verification UI.
+
 ## Implemented MVP Features
 
 - Authentication with account signup/signin (`/api/auth/register`, `/api/auth/login`, `/api/auth/me`)

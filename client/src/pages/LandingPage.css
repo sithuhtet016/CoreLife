@@ -81,16 +81,16 @@
 .header-cta {
   padding: var(--cl-spacing-sm) var(--cl-spacing-lg);
   border-radius: var(--cl-radius-full);
-  background: var(--cl-primary);
+  background: var(--cl-primary-strong);
   color: var(--cl-surface);
   text-decoration: none;
   font-size: var(--cl-text-sm);
-  font-weight: 500;
+  font-weight: 600;
   box-shadow: var(--cl-shadow-sm);
 }
 
 .header-cta:hover {
-  background: var(--cl-primary-hover);
+  background: var(--cl-primary-deep);
   box-shadow: var(--cl-shadow-md);
   transform: translateY(-1px) scale(1.01);
 }
@@ -161,11 +161,15 @@
   border-radius: 9999px;
   background: var(--cl-primary-tint);
   border: 1px solid var(--cl-primary-border);
-  color: var(--cl-primary);
+  color: var(--cl-primary-deeper);
   font-size: 0.875rem;
   font-weight: 500;
   width: fit-content;
   opacity: 0;
+  transform: translate3d(0, -10px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-badge-icon {
@@ -191,6 +195,10 @@
   font-weight: 700;
   color: var(--cl-text);
   opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-copy h1 span {
@@ -211,6 +219,10 @@
   color: var(--cl-text-muted);
   max-width: 32rem;
   opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-actions {
@@ -219,6 +231,10 @@
   gap: 0.875rem;
   padding-top: 0.75rem;
   opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-primary-btn,
@@ -299,6 +315,10 @@
   font-size: 0.875rem;
   color: var(--cl-text-muted);
   opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-user-list {
@@ -334,6 +354,9 @@
   display: none;
   opacity: 0;
   transform: translate3d(30px, 20px, 0) scale(0.96);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-ambient-shape {
@@ -342,6 +365,7 @@
   pointer-events: none;
   mix-blend-mode: screen;
   opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-ambient-shape-a {
@@ -380,6 +404,9 @@
   box-shadow: 0 25px 50px -12px rgba(229, 231, 235, 0.5);
   opacity: 0;
   transform: translate3d(0, 10px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-main-image img,
@@ -462,6 +489,9 @@
   box-shadow: 0 10px 15px -3px rgba(229, 231, 235, 0.5);
   opacity: 0;
   transform: translate3d(-20px, 0, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .hero-side-image:first-child {
@@ -514,9 +544,14 @@
   margin: 0 auto 3.2rem;
   opacity: 0;
   transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .section-intro.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .section-intro h2 {
@@ -527,7 +562,7 @@
   color: var(--cl-text);
 }
 
-.section-intro h1 {
+.section-intro-copy {
   margin: 0;
   font-size: 1.03rem;
   line-height: 1.7;
@@ -559,9 +594,14 @@
   height: 100%;
   opacity: 0;
   transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .feature-card.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .feature-card:nth-child(1).is-visible {
@@ -676,9 +716,14 @@
   margin-bottom: 3.2rem;
   opacity: 0;
   transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .testimonials-head.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .testimonials-head h2 {
@@ -732,9 +777,14 @@
   border: 1px solid var(--cl-border-soft);
   opacity: 0;
   transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .testimonial-card.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .testimonial-card:nth-child(1).is-visible {
@@ -770,7 +820,7 @@
   object-fit: cover;
 }
 
-.testimonial-user h4 {
+.testimonial-user-name {
   margin: 0;
   font-weight: 700;
 }
@@ -833,9 +883,14 @@
   text-align: center;
   opacity: 0;
   transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.68, 0.48, 1),
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.48, 1);
 }
 
 .cta-inner.is-visible {
+  opacity: 1;
+  transform: none;
 }
 
 .cta-inner h2 {
@@ -939,40 +994,36 @@
   background-size: 100% 1px;
 }
 
-/* Keep content visible after removing reveal animations. */
-.hero-badge,
-.hero-copy h1,
-.hero-copy p,
-.hero-actions,
-.hero-users,
-.hero-visuals,
-.hero-main-image,
-.hero-glass-card,
-.hero-side-image,
-.section-intro,
-.feature-card,
-.testimonials-head,
-.testimonial-card,
-.cta-inner {
-  opacity: 1;
+.landing-footer-copy {
+  margin: 0;
+  color: var(--cl-text);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.hero-visuals,
-.hero-main-image,
-.hero-glass-card,
-.section-intro,
-.feature-card,
-.testimonials-head,
-.testimonial-card,
-.cta-inner {
+.hero-copy.is-visible .hero-badge,
+.hero-copy.is-visible h1,
+.hero-copy.is-visible p,
+.hero-copy.is-visible .hero-actions,
+.hero-copy.is-visible .hero-users,
+.hero-visuals.is-visible,
+.hero-visuals.is-visible .hero-ambient-shape,
+.hero-visuals.is-visible .hero-main-image,
+.hero-visuals.is-visible .hero-glass-card,
+.hero-visuals.is-visible .hero-side-image,
+.section-intro.is-visible,
+.feature-card.is-visible,
+.testimonials-head.is-visible,
+.testimonial-card.is-visible,
+.cta-inner.is-visible {
+  opacity: 1;
   transform: none;
 }
 
-.hero-ambient-shape,
-.features-section::before,
-.testimonials-section::before,
-.testimonials-section::after,
-.landing-cta-section::after {
+.features-section.is-visible::before,
+.testimonials-section.is-visible::before,
+.testimonials-section.is-visible::after,
+.landing-cta-section.is-visible::after {
   opacity: 1;
 }
 
@@ -1001,7 +1052,7 @@
 
 .landing-footer p {
   margin: 0;
-  color: var(--cl-text-faint);
+  color: var(--cl-text-muted);
   font-size: 0.875rem;
 }
 

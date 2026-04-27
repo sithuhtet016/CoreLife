@@ -5,14 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
-    "build": "npm ci --prefix client --include=dev && npm ci --prefix server --include=dev && npm run build --prefix client",
-    "start": "npm run start --prefix server",
-    "typecheck": "npm run build --prefix client -- --mode development"
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server run start",
+    "typecheck": "npm --prefix client run typecheck"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.103.0"
-  }
+  "dependencies": {}
 }

@@ -247,7 +247,7 @@
   width: 100%;
   border: 0;
   border-radius: var(--cl-radius-full);
-  background: var(--cl-primary);
+  background: var(--cl-primary-strong);
   color: var(--cl-surface);
   font-size: var(--cl-text-sm);
   font-weight: 700;
@@ -256,7 +256,7 @@
 }
 
 .register-submit-btn:hover {
-  background: var(--cl-primary-hover);
+  background: var(--cl-primary-deep);
   transform: translateY(-2px);
 }
 
@@ -270,6 +270,96 @@
   color: var(--cl-danger);
   text-align: center;
   font-size: var(--cl-text-sm);
+}
+
+.register-success {
+  margin: 0;
+  border: 1px solid var(--cl-success-border);
+  background: var(--cl-success-tint);
+  color: var(--cl-success-text);
+  border-radius: var(--cl-radius-lg);
+  padding: var(--cl-spacing-sm) var(--cl-spacing-md);
+  display: grid;
+  gap: var(--cl-spacing-xs);
+  text-align: left;
+  font-size: var(--cl-text-sm);
+}
+
+.register-success p {
+  margin: 0;
+}
+
+.register-success a {
+  color: var(--cl-primary);
+  font-weight: 700;
+}
+
+.register-otp-panel {
+  margin-top: var(--cl-spacing-sm);
+  padding-top: var(--cl-spacing-sm);
+  border-top: 1px solid var(--cl-success-border);
+  display: grid;
+  gap: var(--cl-spacing-xs);
+}
+
+.register-otp-panel label {
+  font-size: var(--cl-text-xs);
+  font-weight: 700;
+  color: var(--cl-success-text);
+}
+
+.register-otp-input {
+  width: 100%;
+  border: 1px solid var(--cl-border);
+  border-radius: var(--cl-radius-md);
+  background: var(--cl-surface);
+  color: var(--cl-text);
+  padding: var(--cl-spacing-sm) var(--cl-spacing-md);
+  font-size: var(--cl-text-sm);
+  letter-spacing: 0.08em;
+}
+
+.register-otp-input:focus {
+  outline: none;
+  border-color: var(--cl-primary);
+  box-shadow: var(--cl-ring);
+}
+
+.register-otp-hint {
+  margin: 0;
+  color: var(--cl-text-muted);
+  font-size: var(--cl-text-xs);
+}
+
+.register-otp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cl-spacing-sm);
+}
+
+.register-otp-btn,
+.register-otp-link-btn {
+  border-radius: var(--cl-radius-full);
+  border: 0;
+  font-size: var(--cl-text-xs);
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+}
+
+.register-otp-btn {
+  background: var(--cl-primary);
+  color: var(--cl-surface);
+}
+
+.register-otp-link-btn {
+  background: var(--cl-surface);
+  color: var(--cl-primary);
+  border: 1px solid var(--cl-primary-soft);
+}
+
+.register-otp-btn:disabled,
+.register-otp-link-btn:disabled {
+  opacity: 0.72;
 }
 
 .register-login-copy {

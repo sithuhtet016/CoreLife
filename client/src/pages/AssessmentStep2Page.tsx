@@ -1,30 +1,196 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Activity } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { getStoredToken } from "../api";
+import { getQuestions, getStoredToken } from "../api";
 import {
-  saveGuestAssessmentDraft,
-  syncGuestDraftToAccount,
+  getAssessmentDraft,
+  getSelectedAreaIdsFromDraft,
+  saveAssessmentDraft,
 } from "../assessmentDraft";
 import BrandLogo from "../components/BrandLogo";
 import "./AssessmentStep2Page.css";
 
+type StepTwoQuestion = {
+  id: number;
+  life_area_id: number;
+  text: string;
+  order_index: number;
+};
+
+type StepTwoQuestionGroup = {
+  areaId: number;
+  areaName: string;
+  questions: StepTwoQuestion[];
+};
+
 function AssessmentStep2Page() {
   const navigate = useNavigate();
-  const [healthScore, setHealthScore] = useState<number | null>(null);
-  const [mindsetScore, setMindsetScore] = useState<number | null>(null);
-  const [careerScore, setCareerScore] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [questionGroups, setQuestionGroups] = useState<StepTwoQuestionGroup[]>(
+    [],
+  );
+  const [questionScores, setQuestionScores] = useState<Record<number, number>>(
+    {},
+  );
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const totalQuestions = useMemo(
+    () =>
+      questionGroups.reduce(
+        (count, group) => count + group.questions.length,
+        0,
+      ),
+    [questionGroups],
+  );
+
+  const answeredQuestions = useMemo(
+    () =>
+      questionGroups.reduce(
+        (count, group) =>
+          count +
+          group.questions.filter((question) => {
+            const score = questionScores[question.id];
+            return Number.isInteger(score) && score >= 1 && score <= 5;
+          }).length,
+        0,
+      ),
+    [questionGroups, questionScores],
+  );
+
+  const isStepTwoComplete =
+    !isLoading && totalQuestions > 0 && answeredQuestions === totalQuestions;
+
+  useEffect(() => {
+    let active = true;
+
+    const loadStepTwoQuestions = async () => {
+      setIsLoading(true);
+
+      try {
+        const [draft, payload] = await Promise.all([
+          getAssessmentDraft(),
+          getQuestions(),
+        ]);
+
+        if (!active) return;
+
+        const selectedAreaIds = getSelectedAreaIdsFromDraft(draft);
+
+        if (selectedAreaIds.length === 0) {
+          setQuestionGroups([]);
+          setQuestionScores({});
+          setValidationError(
+            "No selected life areas found. Please go back to Step 1 and choose at least 3 areas.",
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        const areaNameById = new Map(
+          payload.lifeAreas.map((lifeArea) => [lifeArea.id, lifeArea.name]),
+        );
+
+        const groupedQuestions = selectedAreaIds
+          .map((areaId) => {
+            const questions = payload.questions
+              .filter((question) => question.life_area_id === areaId)
+              .sort((a, b) => a.order_index - b.order_index);
+
+            return {
+              areaId,
+              areaName: areaNameById.get(areaId) ?? `Area ${areaId}`,
+              questions,
+            } satisfies StepTwoQuestionGroup;
+          })
+          .filter((group) => group.questions.length > 0);
+
+        const allowedQuestionIds = new Set(
+          groupedQuestions.flatMap((group) =>
+            group.questions.map((question) => question.id),
+          ),
+        );
+
+        const restoredScores: Record<number, number> = {};
+        const rawScores = draft?.step2?.questionScores ?? {};
+
+        for (const [questionId, score] of Object.entries(rawScores)) {
+          const numericQuestionId = Number(questionId);
+          const numericScore = Number(score);
+
+          if (
+            !allowedQuestionIds.has(numericQuestionId) ||
+            !Number.isInteger(numericScore) ||
+            numericScore < 1 ||
+            numericScore > 5
+          ) {
+            continue;
+          }
+
+          restoredScores[numericQuestionId] = numericScore;
+        }
+
+        setQuestionGroups(groupedQuestions);
+        setQuestionScores(restoredScores);
+        setValidationError(null);
+      } catch {
+        if (!active) return;
+        setQuestionGroups([]);
+        setQuestionScores({});
+        setValidationError(
+          "Failed to load assessment questions. Please refresh and try again.",
+        );
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadStepTwoQuestions();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleScoreChange = (questionId: number, score: number) => {
+    setQuestionScores((current) => ({
+      ...current,
+      [questionId]: score,
+    }));
+
+    if (validationError) {
+      setValidationError(null);
+    }
+  };
+
+  const buildStepTwoDraft = () => ({
+    step: 2 as const,
+    route: "/assessment/step-2",
+    savedAt: new Date().toISOString(),
+    step2: {
+      questionScores: Object.entries(questionScores).reduce<
+        Record<string, number>
+      >((acc, [questionId, score]) => {
+        const numericQuestionId = Number(questionId);
+        const numericScore = Number(score);
+
+        if (
+          Number.isInteger(numericQuestionId) &&
+          Number.isInteger(numericScore) &&
+          numericScore >= 1 &&
+          numericScore <= 5
+        ) {
+          acc[String(numericQuestionId)] = numericScore;
+        }
+
+        return acc;
+      }, {}),
+    },
+  });
 
   const handleSaveAndExit = async () => {
-    saveGuestAssessmentDraft({
-      step: 2,
-      route: "/assessment/step-2",
-      savedAt: new Date().toISOString(),
-      step2: {
-        health: healthScore ?? undefined,
-        mindset: mindsetScore ?? undefined,
-        career: careerScore ?? undefined,
-      },
-    });
+    await saveAssessmentDraft(buildStepTwoDraft());
 
     const isAuthenticated = Boolean(getStoredToken());
     if (!isAuthenticated) {
@@ -37,9 +203,28 @@ function AssessmentStep2Page() {
       return;
     }
 
-    await syncGuestDraftToAccount();
+    navigate("/dashboard");
+  };
 
-    navigate("/");
+  const handleNextStep = async () => {
+    if (totalQuestions === 0) {
+      setValidationError(
+        "No selected life areas found. Please return to Step 1 first.",
+      );
+      return;
+    }
+
+    if (answeredQuestions < totalQuestions) {
+      const remaining = totalQuestions - answeredQuestions;
+      setValidationError(
+        `Please answer all questions before continuing. ${remaining} remaining.`,
+      );
+      return;
+    }
+
+    setValidationError(null);
+    await saveAssessmentDraft(buildStepTwoDraft());
+    navigate("/assessment/step-3");
   };
 
   return (
@@ -128,9 +313,7 @@ function AssessmentStep2Page() {
 
             <div className="assessment2-title-wrap">
               <span className="assessment2-title-icon" aria-hidden="true">
-                <svg viewBox="0 0 448 512" fill="currentColor">
-                  <path d="M160 80c0-26.5 21.5-48 48-48h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V80zM0 272c0-26.5 21.5-48 48-48H80c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V272zM368 96h32c26.5 0 48 21.5 48 48V432c0 26.5-21.5 48-48 48H368c-26.5 0-48-21.5-48-48V144c0-26.5 21.5-48 48-48z" />
-                </svg>
+                <Activity strokeWidth={2} />
               </span>
               <h1>Rate your current state</h1>
               <p>
@@ -139,75 +322,81 @@ function AssessmentStep2Page() {
               </p>
             </div>
 
-            <form className="assessment2-form" action="#" method="post">
-              <article className="rating-card">
-                <div className="rating-head">
-                  <div>
-                    <h4>Health &amp; Fitness</h4>
-                    <p>Physical wellbeing, diet, exercise, energy levels</p>
-                  </div>
-                </div>
-                <div className="rating-row">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <label key={`health-${n}`}>
-                      <input
-                        type="radio"
-                        name="rating-health"
-                        value={n}
-                        checked={healthScore === n}
-                        onChange={() => setHealthScore(n)}
-                      />
-                      <span>{n}</span>
-                    </label>
-                  ))}
-                </div>
-              </article>
+            <form
+              className="assessment2-form"
+              action="#"
+              method="post"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleNextStep();
+              }}
+            >
+              <div className="assessment2-question-count">
+                <span>
+                  {answeredQuestions}/{totalQuestions} answered
+                </span>
+                <span>Rate each question from 1 (lowest) to 5 (highest).</span>
+              </div>
 
-              <article className="rating-card">
-                <div className="rating-head">
-                  <div>
-                    <h4>Mindset &amp; Mental Health</h4>
-                    <p>Stress management, learning, emotional stability</p>
-                  </div>
-                </div>
-                <div className="rating-row">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <label key={`mindset-${n}`}>
-                      <input
-                        type="radio"
-                        name="rating-mindset"
-                        value={n}
-                        checked={mindsetScore === n}
-                        onChange={() => setMindsetScore(n)}
-                      />
-                      <span>{n}</span>
-                    </label>
-                  ))}
-                </div>
-              </article>
+              {isLoading ? (
+                <p className="assessment2-feedback">
+                  Loading questions for your selected life areas...
+                </p>
+              ) : questionGroups.length === 0 ? (
+                <p className="assessment2-feedback">
+                  No questions to show yet.
+                </p>
+              ) : (
+                questionGroups.map((group) => (
+                  <article className="rating-card" key={group.areaId}>
+                    <div className="rating-head">
+                      <div>
+                        <h4>{group.areaName}</h4>
+                        <p>
+                          Answer all {group.questions.length} questions in this
+                          area
+                        </p>
+                      </div>
+                    </div>
 
-              <article className="rating-card">
-                <div className="rating-head">
-                  <div>
-                    <h4>Career &amp; Work</h4>
-                    <p>Professional growth, satisfaction, impact</p>
-                  </div>
-                </div>
-                <div className="rating-row">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <label key={`career-${n}`}>
-                      <input
-                        type="radio"
-                        name="rating-career"
-                        value={n}
-                        checked={careerScore === n}
-                        onChange={() => setCareerScore(n)}
-                      />
-                      <span>{n}</span>
-                    </label>
-                  ))}
-                </div>
-              </article>
+                    <div className="assessment2-question-list">
+                      {group.questions.map((question) => (
+                        <div
+                          className="assessment2-question-item"
+                          key={question.id}
+                        >
+                          <p className="assessment2-question-text">
+                            {question.text}
+                          </p>
+
+                          <div className="rating-row">
+                            {[1, 2, 3, 4, 5].map((score) => (
+                              <label key={`${question.id}-${score}`}>
+                                <input
+                                  type="radio"
+                                  name={`question-${question.id}`}
+                                  value={score}
+                                  checked={
+                                    questionScores[question.id] === score
+                                  }
+                                  onChange={() =>
+                                    handleScoreChange(question.id, score)
+                                  }
+                                />
+                                <span>{score}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))
+              )}
+
+              {validationError ? (
+                <p className="assessment2-feedback error">{validationError}</p>
+              ) : null}
 
               <div className="assessment2-actions">
                 <button
@@ -219,15 +408,20 @@ function AssessmentStep2Page() {
                 </button>
 
                 <div className="assessment2-actions-right">
-                  <Link to="/assessment" className="assessment2-btn-muted">
+                  <button
+                    type="button"
+                    className="assessment2-btn-muted"
+                    onClick={() => navigate("/assessment")}
+                  >
                     Back
-                  </Link>
-                  <Link
-                    to="/assessment/step-3"
+                  </button>
+                  <button
+                    type="submit"
                     className="assessment2-btn-primary"
+                    disabled={!isStepTwoComplete}
                   >
                     Next Step
-                  </Link>
+                  </button>
                 </div>
               </div>
             </form>
