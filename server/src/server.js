@@ -37,6 +37,8 @@ const LOGIN_OTP_MAX_ATTEMPTS = Math.max(
 );
 const LOGIN_OTP_SECRET =
   process.env.LOGIN_OTP_SECRET?.trim() || "corelife-login-otp-secret";
+const ENABLE_DEBUG_ENDPOINTS =
+  process.env.ENABLE_DEBUG_ENDPOINTS?.trim().toLowerCase() === "true";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
@@ -2145,133 +2147,133 @@ app.get("/api/recommendations", requireAuth, async (req, res) => {
   });
 });
 
-// DEBUG: temporary endpoints to help local development and troubleshooting.
-// These endpoints are intentionally unauthenticated to make local testing easy.
-// Remove or protect them before deploying to any shared environment.
-app.post("/api/debug/seed-habits", async (req, res) => {
-  const { userId } = req.body ?? {};
-  const normalizedUserId = String(userId ?? "").trim();
-  if (!normalizedUserId) {
-    return res.status(400).json({ error: "userId is required" });
-  }
-
-  const sampleHabits = [
-    {
-      user_id: normalizedUserId,
-      name: "Evening walk",
-      description: "20-minute walk after dinner",
-      life_area_id: 1,
-      frequency: "daily",
-    },
-    {
-      user_id: normalizedUserId,
-      name: "Drink 2L water",
-      description: "Track water intake",
-      life_area_id: 1,
-      frequency: "daily",
-    },
-    {
-      user_id: normalizedUserId,
-      name: "Weekly money review",
-      description: "10-minute budget check",
-      life_area_id: 7,
-      frequency: "weekly",
-    },
-  ];
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("habits")
-      .insert(sampleHabits)
-      .select("*");
-    if (error) {
-      return res
-        .status(500)
-        .json({ error: formatSupabaseError(error, "failed to seed habits") });
-    }
-    return res.status(201).json({ habits: data ?? [] });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: formatSupabaseError(err, "unknown error") });
-  }
-});
-
-// Authenticated variant: seeds sample habits for the current authenticated user.
-app.post("/api/debug/seed-habits/me", requireAuth, async (req, res) => {
-  const userId = req.user?.id;
-  if (!userId)
-    return res
-      .status(400)
-      .json({ error: "authenticated user id not available" });
-
-  const sampleHabits = [
-    {
-      user_id: userId,
-      name: "Evening walk",
-      description: "20-minute walk after dinner",
-      life_area_id: 1,
-      frequency: "daily",
-    },
-    {
-      user_id: userId,
-      name: "Drink 2L water",
-      description: "Track water intake",
-      life_area_id: 1,
-      frequency: "daily",
-    },
-    {
-      user_id: userId,
-      name: "Weekly money review",
-      description: "10-minute budget check",
-      life_area_id: 7,
-      frequency: "weekly",
-    },
-  ];
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("habits")
-      .insert(sampleHabits)
-      .select("*");
-    if (error) {
-      return res
-        .status(500)
-        .json({ error: formatSupabaseError(error, "failed to seed habits") });
-    }
-    return res.status(201).json({ habits: data ?? [] });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: formatSupabaseError(err, "unknown error") });
-  }
-});
-
-app.get("/api/debug/list-habits", async (req, res) => {
-  const userId = String(req.query.userId ?? "").trim();
-  if (!userId)
-    return res.status(400).json({ error: "userId query param is required" });
-
-  try {
-    const { data, error } = await supabaseAdmin
-      .from("habits")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      return res
-        .status(500)
-        .json({ error: formatSupabaseError(error, "failed to fetch habits") });
+if (ENABLE_DEBUG_ENDPOINTS) {
+  // DEBUG: temporary endpoints to help local development and troubleshooting.
+  // Keep disabled by default in deployed/shared environments.
+  app.post("/api/debug/seed-habits", async (req, res) => {
+    const { userId } = req.body ?? {};
+    const normalizedUserId = String(userId ?? "").trim();
+    if (!normalizedUserId) {
+      return res.status(400).json({ error: "userId is required" });
     }
 
-    return res.json({ habits: data ?? [] });
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: formatSupabaseError(err, "unknown error") });
-  }
-});
+    const sampleHabits = [
+      {
+        user_id: normalizedUserId,
+        name: "Evening walk",
+        description: "20-minute walk after dinner",
+        life_area_id: 1,
+        frequency: "daily",
+      },
+      {
+        user_id: normalizedUserId,
+        name: "Drink 2L water",
+        description: "Track water intake",
+        life_area_id: 1,
+        frequency: "daily",
+      },
+      {
+        user_id: normalizedUserId,
+        name: "Weekly money review",
+        description: "10-minute budget check",
+        life_area_id: 7,
+        frequency: "weekly",
+      },
+    ];
+
+    try {
+      const { data, error } = await supabaseAdmin
+        .from("habits")
+        .insert(sampleHabits)
+        .select("*");
+      if (error) {
+        return res
+          .status(500)
+          .json({ error: formatSupabaseError(error, "failed to seed habits") });
+      }
+      return res.status(201).json({ habits: data ?? [] });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: formatSupabaseError(err, "unknown error") });
+    }
+  });
+
+  app.post("/api/debug/seed-habits/me", requireAuth, async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId)
+      return res
+        .status(400)
+        .json({ error: "authenticated user id not available" });
+
+    const sampleHabits = [
+      {
+        user_id: userId,
+        name: "Evening walk",
+        description: "20-minute walk after dinner",
+        life_area_id: 1,
+        frequency: "daily",
+      },
+      {
+        user_id: userId,
+        name: "Drink 2L water",
+        description: "Track water intake",
+        life_area_id: 1,
+        frequency: "daily",
+      },
+      {
+        user_id: userId,
+        name: "Weekly money review",
+        description: "10-minute budget check",
+        life_area_id: 7,
+        frequency: "weekly",
+      },
+    ];
+
+    try {
+      const { data, error } = await supabaseAdmin
+        .from("habits")
+        .insert(sampleHabits)
+        .select("*");
+      if (error) {
+        return res
+          .status(500)
+          .json({ error: formatSupabaseError(error, "failed to seed habits") });
+      }
+      return res.status(201).json({ habits: data ?? [] });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: formatSupabaseError(err, "unknown error") });
+    }
+  });
+
+  app.get("/api/debug/list-habits", async (req, res) => {
+    const userId = String(req.query.userId ?? "").trim();
+    if (!userId)
+      return res.status(400).json({ error: "userId query param is required" });
+
+    try {
+      const { data, error } = await supabaseAdmin
+        .from("habits")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        return res
+          .status(500)
+          .json({ error: formatSupabaseError(error, "failed to fetch habits") });
+      }
+
+      return res.json({ habits: data ?? [] });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: formatSupabaseError(err, "unknown error") });
+    }
+  });
+}
 
 app.get("/api/progress/history", requireAuth, async (req, res) => {
   const { data: sessions, error } = await supabaseAdmin
