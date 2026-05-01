@@ -640,9 +640,63 @@ async function ensureAppUser(authUser) {
     .upsert(userPayload, { onConflict: "id" });
 
   if (upsertError) {
-    throw new Error(
-      formatSupabaseError(upsertError, "failed to create user profile"),
-    );
+    const isDuplicateEmail =
+      upsertError?.code === "23505" &&
+      String(upsertError?.message ?? "").includes("users_email_key");
+
+    if (!isDuplicateEmail) {
+      throw new Error(
+        formatSupabaseError(upsertError, "failed to create user profile"),
+      );
+    }
+
+    const { data: existingByEmail, error: existingByEmailError } =
+      await supabaseAdmin
+        .from("users")
+        .select(
+          "id, email, full_name, promo_email_opt_in, promo_email_opt_in_at, created_at",
+        )
+        .eq("email", email)
+        .maybeSingle();
+
+    if (existingByEmailError || !existingByEmail) {
+      throw new Error(
+        formatSupabaseError(
+          existingByEmailError ?? upsertError,
+          "failed to read existing user profile",
+        ),
+      );
+    }
+
+    const updatePayload = {
+      full_name:
+        Object.hasOwn(userPayload, "full_name") && userPayload.full_name
+          ? userPayload.full_name
+          : existingByEmail.full_name,
+      promo_email_opt_in: Object.hasOwn(userPayload, "promo_email_opt_in")
+        ? userPayload.promo_email_opt_in
+        : existingByEmail.promo_email_opt_in,
+      promo_email_opt_in_at: Object.hasOwn(userPayload, "promo_email_opt_in_at")
+        ? userPayload.promo_email_opt_in_at
+        : existingByEmail.promo_email_opt_in_at,
+    };
+
+    const { data: mergedUser, error: mergeError } = await supabaseAdmin
+      .from("users")
+      .update(updatePayload)
+      .eq("id", existingByEmail.id)
+      .select(
+        "id, email, full_name, promo_email_opt_in, promo_email_opt_in_at, created_at",
+      )
+      .single();
+
+    if (mergeError || !mergedUser) {
+      throw new Error(
+        formatSupabaseError(mergeError, "failed to update existing user profile"),
+      );
+    }
+
+    return toPublicUser(mergedUser);
   }
 
   const { data: userRow, error: selectError } = await supabaseAdmin
