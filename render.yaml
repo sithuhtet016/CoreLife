@@ -1,7 +1,7 @@
 services:
   - type: web
     name: corelife
-    env: node
+    env: no
     buildCommand: npm ci --prefix client --production=false && npm ci --prefix server --production=false && npm run build --prefix client
     startCommand: npm run start --prefix server
     healthCheckPath: /api/health
