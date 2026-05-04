@@ -1,4 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  Briefcase,
+  Compass,
+  Gamepad2,
+  Globe,
+  Heart,
+  Home,
+  Leaf,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppHeader from "../components/AppHeader";
 import PageSkeleton from "../components/PageSkeleton";
@@ -207,6 +222,24 @@ function DashboardPage() {
   const focusAreas = useMemo(
     () => [...areaSummaries].sort((a, b) => a.score - b.score).slice(0, 2),
     [areaSummaries],
+  );
+
+  const iconByAreaName = useMemo<Record<string, LucideIcon>>(
+    () => ({
+      health: Activity,
+      appearance: Sparkles,
+      love: Heart,
+      family: Home,
+      friends: Users,
+      career: Briefcase,
+      money: Wallet,
+      "self-growth": TrendingUp,
+      spirituality: Compass,
+      recreation: Gamepad2,
+      environment: Leaf,
+      community: Globe,
+    }),
+    [],
   );
 
   return (
@@ -454,7 +487,16 @@ function DashboardPage() {
                               ),
                               color: getLifeAreaAccent({ id: area.id, name: area.name }).hex,
                             }}>
-                            <i className="fas fa-heart-pulse"></i>
+                            {(() => {
+                              const iconKey = area.name
+                                .toLowerCase()
+                                .replace(/\s+/g, "-");
+                              const Icon =
+                                iconByAreaName[iconKey] ??
+                                iconByAreaName[area.name.toLowerCase()] ??
+                                Activity;
+                              return <Icon className="h-4 w-4" />;
+                            })()}
                           </div>
                           <div>
                             <span className="font-semibold text-sm block">
