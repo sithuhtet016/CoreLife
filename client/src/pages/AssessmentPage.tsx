@@ -210,12 +210,18 @@ function AssessmentPage() {
 
     const isAuthenticated = Boolean(getStoredToken());
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/dashboard", {
+        state: { toast: "Assessment progress saved." },
+      });
       return;
     }
 
     navigate("/auth-required", {
-      state: { from: "/assessment", intent: "save-assessment" as const },
+      state: {
+        from: "/assessment",
+        intent: "save-assessment" as const,
+        saved: true,
+      },
     });
   };
 

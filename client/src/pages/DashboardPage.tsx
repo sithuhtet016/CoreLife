@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppHeader from "../components/AppHeader";
 import PageSkeleton from "../components/PageSkeleton";
 import { getHabits, getMe, getProgressHistory, getQuestions } from "../api";
@@ -49,6 +49,7 @@ function getFirstName(fullName: string | null, email: string) {
 }
 
 function DashboardPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [toast, setToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,6 +83,20 @@ function DashboardPage() {
       window.clearTimeout(delayedInit);
     };
   }, []);
+
+  useEffect(() => {
+    const message =
+      location.state &&
+      typeof location.state === "object" &&
+      "toast" in location.state &&
+      typeof (location.state as { toast?: unknown }).toast === "string"
+        ? ((location.state as { toast: string }).toast ?? "").trim()
+        : "";
+
+    if (!message) return;
+    showToast(message);
+    navigate("/dashboard", { replace: true });
+  }, [location.state, navigate]);
 
   useEffect(() => {
     const updateHour = () => setCurrentHour(new Date().getHours());

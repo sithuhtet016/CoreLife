@@ -6,6 +6,7 @@ import "./AuthRequiredPage.css";
 type AuthRequiredState = {
   from?: string;
   intent?: "save-assessment";
+  saved?: boolean;
 };
 
 function AuthRequiredPage() {
@@ -14,6 +15,7 @@ function AuthRequiredPage() {
   const from = state?.from ?? "/dashboard";
   const cleanTarget = from.split("?")[0].split("#")[0] || from;
   const isAssessmentSaveIntent = state?.intent === "save-assessment";
+  const hasSavedProgress = Boolean(state?.saved);
   const isAuthenticated = Boolean(getStoredToken());
 
   if (isAuthenticated) {
@@ -56,6 +58,11 @@ function AuthRequiredPage() {
                 </>
               )}
             </p>
+            {isAssessmentSaveIntent && hasSavedProgress ? (
+              <p className="auth-required-saved" role="status" aria-live="polite">
+                Progress saved on this device.
+              </p>
+            ) : null}
 
             <div className="auth-required-actions">
               <Link
@@ -74,8 +81,13 @@ function AuthRequiredPage() {
               </Link>
             </div>
 
-            <Link to="/" className="auth-required-cancel">
-              Not now
+            <Link
+              to={isAssessmentSaveIntent ? from : "/"}
+              className="auth-required-cancel"
+            >
+              {isAssessmentSaveIntent
+                ? "Continue assessment as guest"
+                : "Not now"}
             </Link>
           </div>
         </section>

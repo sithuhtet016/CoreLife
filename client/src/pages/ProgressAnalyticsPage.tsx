@@ -266,51 +266,88 @@ function ProgressAnalyticsPage() {
         }
 
         const areaColors = [
-          "#10B981",
-          "#8B5CF6",
-          "#F59E0B",
-          "#3B82F6",
-          "#EC4899",
-          "#22D3EE",
-          "#F97316",
-          "#A3E635",
-          "#6366F1",
-          "#14B8A6",
-          "#F43F5E",
+          "#2563EB",
           "#0EA5E9",
+          "#14B8A6",
+          "#10B981",
+          "#84CC16",
+          "#F59E0B",
+          "#F97316",
+          "#EF4444",
+          "#EC4899",
+          "#8B5CF6",
+          "#6366F1",
+          "#64748B",
         ];
+
+        const chartLabels = areaBalanceRows.map((area) => area.name);
+        const chartScores = areaBalanceRows.map((area) => Math.round(area.score));
 
         const areaData = [
           {
-            x: areaBalanceRows.map((area) => area.name),
-            y: areaBalanceRows.map((area) => Math.round(area.score)),
+            x: chartLabels,
+            y: new Array(chartLabels.length).fill(100),
             type: "bar",
             marker: {
-              color: areaColors.slice(0, areaBalanceRows.length),
-              border: { radius: 4 },
+              color: "#EEF2F7",
+              cornerradius: 18,
             },
+            hoverinfo: "skip",
+            width: 0.64,
+          },
+          {
+            x: chartLabels,
+            y: chartScores,
+            type: "bar",
+            marker: {
+              color: areaColors.slice(0, chartLabels.length),
+              cornerradius: 18,
+              line: {
+                color: "rgba(255,255,255,0.65)",
+                width: 1,
+              },
+            },
+            width: 0.52,
+            text: chartScores.map((value) => `${value}`),
+            textposition: "outside",
+            textfont: {
+              color: "#475569",
+              size: 11,
+            },
+            hovertemplate: "%{x}<br>Score: <b>%{y}</b>/100<extra></extra>",
           },
         ];
 
         const areaLayout = {
-          margin: { t: 10, r: 10, b: 30, l: 30 },
+          margin: { t: 20, r: 10, b: 52, l: 32 },
+          barmode: "overlay",
+          bargap: 0.35,
           xaxis: {
             showgrid: false,
             color: "#9CA3AF",
-            tickfont: { size: 12 },
+            tickfont: { size: 11 },
             tickangle: -25,
             automargin: true,
           },
           yaxis: {
             showgrid: true,
-            gridcolor: "#F3F4F6",
+            gridcolor: "#E8EDF3",
+            gridwidth: 1,
+            zeroline: false,
             color: "#9CA3AF",
             tickfont: { size: 12 },
             range: [0, 100],
+            tickmode: "array",
+            tickvals: [0, 25, 50, 75, 100],
+            ticksuffix: "%",
           },
           plot_bgcolor: "transparent",
           paper_bgcolor: "transparent",
           showlegend: false,
+          uniformtext: {
+            mode: "hide",
+            minsize: 9,
+          },
         };
 
         window.Plotly.newPlot("chart-area-radar", areaData, areaLayout, {

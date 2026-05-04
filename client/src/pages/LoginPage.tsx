@@ -13,7 +13,7 @@ import {
   startLoginOtpChallenge,
   verifyLoginOtpChallenge,
 } from "../api";
-import { syncGuestDraftToAccount } from "../assessmentDraft";
+import { getAssessmentDraft, syncGuestDraftToAccount } from "../assessmentDraft";
 import {
   getRememberSessionPreference,
   setRememberSessionPreference,
@@ -50,6 +50,18 @@ function isAssessmentTarget(path: string) {
   return ASSESSMENT_PATHS.some(
     (target) => cleanPath === target || cleanPath.startsWith(`${target}/`),
   );
+}
+
+function resolveAssessmentResumeRoute(route: string | undefined) {
+  const normalized = (route || "").split("?")[0].split("#")[0] || "";
+  if (
+    normalized === "/assessment" ||
+    normalized === "/assessment/step-2" ||
+    normalized === "/assessment/step-3"
+  ) {
+    return normalized;
+  }
+  return "/assessment";
 }
 
 function LoginPage() {
@@ -99,6 +111,10 @@ function LoginPage() {
       const completed = await hasCompletedAssessment();
       if (completed) {
         return isAssessmentTarget(redirectTo) ? "/dashboard" : redirectTo;
+      }
+      if (isAssessmentTarget(redirectTo)) {
+        const draft = await getAssessmentDraft();
+        return resolveAssessmentResumeRoute(draft?.route);
       }
       return "/assessment";
     } catch {

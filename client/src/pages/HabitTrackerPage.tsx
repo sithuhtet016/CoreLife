@@ -272,8 +272,8 @@ function getProgressTone(progress: number) {
   }
 
   return {
-    textClass: "text-purple-500",
-    barClass: "bg-purple-500",
+    textClass: "text-red-500",
+    barClass: "bg-red-500",
   };
 }
 

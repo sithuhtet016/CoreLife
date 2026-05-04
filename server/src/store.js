@@ -97,6 +97,31 @@ export function computeHabitMetrics(habitId) {
     streak += 1;
   }
 
+  let longestStreak = 0;
+  let runningStreak = 0;
+  let previousCompletedDate = null;
+  for (const log of logs) {
+    if (!log.completed) {
+      runningStreak = 0;
+      previousCompletedDate = null;
+      continue;
+    }
+
+    if (previousCompletedDate) {
+      const previous = new Date(previousCompletedDate);
+      previous.setDate(previous.getDate() + 1);
+      const expectedNext = previous.toISOString().slice(0, 10);
+      runningStreak = expectedNext === log.date ? runningStreak + 1 : 1;
+    } else {
+      runningStreak = 1;
+    }
+
+    if (runningStreak > longestStreak) {
+      longestStreak = runningStreak;
+    }
+    previousCompletedDate = log.date;
+  }
+
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   const recent = logs.filter((log) => new Date(log.date) >= sevenDaysAgo);
@@ -105,5 +130,5 @@ export function computeHabitMetrics(habitId) {
     ? (completedRecent / recent.length) * 100
     : 0;
 
-  return { streak, weeklyConsistency };
+  return { streak, longestStreak, weeklyConsistency };
 }

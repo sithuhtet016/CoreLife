@@ -845,6 +845,36 @@ function computeHabitMetrics(logs, options = {}) {
     streakAnchor = shiftDateKey(streakAnchor, -1);
   }
 
+  const allDateKeys = [...completionByDate.keys()].sort((a, b) =>
+    a.localeCompare(b),
+  );
+  let longestStreak = 0;
+  let runningStreak = 0;
+  let previousCompletedDateKey = null;
+
+  for (const dateKey of allDateKeys) {
+    if (!completionByDate.get(dateKey)) {
+      runningStreak = 0;
+      previousCompletedDateKey = null;
+      continue;
+    }
+
+    if (
+      previousCompletedDateKey &&
+      shiftDateKey(previousCompletedDateKey, 1) === dateKey
+    ) {
+      runningStreak += 1;
+    } else {
+      runningStreak = 1;
+    }
+
+    if (runningStreak > longestStreak) {
+      longestStreak = runningStreak;
+    }
+
+    previousCompletedDateKey = dateKey;
+  }
+
   const completedRecent = recentDateKeys.filter((dateKey) =>
     completionByDate.get(dateKey),
   ).length;
@@ -854,6 +884,7 @@ function computeHabitMetrics(logs, options = {}) {
 
   return {
     streak,
+    longestStreak,
     weeklyConsistency,
   };
 }
@@ -1885,6 +1916,7 @@ app.get("/api/habits", requireAuth, async (req, res) => {
     return {
       ...habit,
       streak: metrics.streak,
+      best_streak: metrics.longestStreak,
       weekly_consistency: Number(metrics.weeklyConsistency.toFixed(2)),
       completed_today: (logsByHabit.get(habit.id) ?? []).some(
         (l) => l.date === today && l.completed,
@@ -1899,15 +1931,21 @@ app.get("/api/habits", requireAuth, async (req, res) => {
     (logs ?? []).some((log) => log.date === dayKey && log.completed),
   );
 
-  const streakValues = enrichedHabits.map((habit) => habit.streak ?? 0);
-  const bestStreak = streakValues.length ? Math.max(...streakValues) : 0;
+  const currentStreakValues = enrichedHabits.map((habit) => habit.streak ?? 0);
+  const currentStreak = currentStreakValues.length
+    ? Math.max(...currentStreakValues)
+    : 0;
+  const bestStreakValues = enrichedHabits.map((habit) => habit.best_streak ?? 0);
+  const bestStreak = bestStreakValues.length
+    ? Math.max(...bestStreakValues)
+    : 0;
 
   return res.json({
     habits: enrichedHabits,
     summary: {
       totalHabits: enrichedHabits.length,
       completedTodayCount,
-      currentStreak: bestStreak,
+      currentStreak,
       bestStreak,
       weeklyActivity,
     },
@@ -2039,6 +2077,7 @@ app.put("/api/habits/:id", requireAuth, async (req, res) => {
     habit: {
       ...updated,
       streak: metrics.streak,
+      best_streak: metrics.longestStreak,
       weekly_consistency: Number(metrics.weeklyConsistency.toFixed(2)),
     },
   });

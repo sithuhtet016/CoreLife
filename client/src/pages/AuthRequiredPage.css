@@ -148,6 +148,19 @@
   max-width: 30ch;
 }
 
+.auth-required-saved {
+  margin: var(--cl-spacing-md) auto 0;
+  max-width: 30ch;
+  color: #15603a;
+  background: #e7f7ee;
+  border: 1px solid #bde9cf;
+  border-radius: 9999px;
+  padding: 0.45rem 0.8rem;
+  font-size: var(--cl-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 .auth-required-actions {
   margin-top: var(--cl-spacing-xl);
   display: grid;

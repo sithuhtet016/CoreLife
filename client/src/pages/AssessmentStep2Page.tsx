@@ -198,12 +198,15 @@ function AssessmentStep2Page() {
         state: {
           from: "/assessment/step-2",
           intent: "save-assessment" as const,
+          saved: true,
         },
       });
       return;
     }
 
-    navigate("/dashboard");
+    navigate("/dashboard", {
+      state: { toast: "Assessment progress saved." },
+    });
   };
 
   const handleNextStep = async () => {
