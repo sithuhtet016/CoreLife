@@ -1,5 +1,6 @@
 .register-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -165,7 +166,7 @@
   border-radius: var(--cl-radius-lg);
   background: var(--cl-surface-alt);
   color: var(--cl-text);
-  font-size: var(--cl-text-sm);
+  font-size: max(16px, var(--cl-text-sm));
   padding: var(--cl-spacing-md) var(--cl-spacing-lg);
   outline: none;
 }

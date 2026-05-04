@@ -1,5 +1,6 @@
 .assessment2-page {
   min-height: 100vh;
+  min-height: 100dvh;
   background: linear-gradient(
     135deg,
     var(--cl-bg-gradient-start) 0%,

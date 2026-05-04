@@ -1,5 +1,6 @@
 .login-page {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -138,7 +139,7 @@
   border-radius: 1rem;
   background: var(--cl-surface-alt);
   color: var(--cl-text);
-  font-size: var(--cl-text-sm);
+  font-size: max(16px, var(--cl-text-sm));
   padding: 1rem 1.25rem;
   outline: none;
 }

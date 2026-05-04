@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   Briefcase,
@@ -286,6 +286,10 @@ function HabitTrackerPage() {
     getHabitSummaryOrDefault(null),
   );
   const [togglingIds, setTogglingIds] = useState<Record<string, boolean>>({});
+  const [habitToggleFx, setHabitToggleFx] = useState<
+    Record<string, "checked" | "unchecked" | null>
+  >({});
+  const habitToggleFxTimersRef = useRef<Record<string, number>>({});
   const [habitEditor, setHabitEditor] = useState<HabitEditorState | null>(null);
   const [habitEditorSaving, setHabitEditorSaving] = useState(false);
   const [habitEditorError, setHabitEditorError] = useState<string | null>(null);
@@ -311,6 +315,31 @@ function HabitTrackerPage() {
     setHabits(res.habits ?? []);
     setHabitSummary(getHabitSummaryOrDefault(res.summary));
   };
+
+  const triggerHabitToggleFx = (
+    habitId: string,
+    effect: "checked" | "unchecked",
+  ) => {
+    const existingTimer = habitToggleFxTimersRef.current[habitId];
+    if (existingTimer) {
+      window.clearTimeout(existingTimer);
+    }
+    setHabitToggleFx((current) => ({ ...current, [habitId]: effect }));
+    habitToggleFxTimersRef.current[habitId] = window.setTimeout(() => {
+      setHabitToggleFx((current) => ({ ...current, [habitId]: null }));
+      delete habitToggleFxTimersRef.current[habitId];
+    }, 520);
+  };
+
+  useEffect(
+    () => () => {
+      Object.values(habitToggleFxTimersRef.current).forEach((timerId) => {
+        window.clearTimeout(timerId);
+      });
+      habitToggleFxTimersRef.current = {};
+    },
+    [],
+  );
 
   const openHabitCreator = (seedFilter: HabitFilter = activeFilter) => {
     const seededArea =
@@ -680,6 +709,7 @@ function HabitTrackerPage() {
     if (togglingIds[habit.id]) return;
     const today = getLocalDateKey();
     const nextCompleted = !habit.completed_today;
+    triggerHabitToggleFx(habit.id, nextCompleted ? "checked" : "unchecked");
 
     // Optimistically update UI
     setTogglingIds((s) => ({ ...s, [habit.id]: true }));
@@ -998,6 +1028,14 @@ function HabitTrackerPage() {
                               h.completed_today
                                 ? "completed bg-primary text-white"
                                 : "border border-gray-200 text-bodyText"
+                            } ${
+                              habitToggleFx[h.id] === "checked"
+                                ? "fx-checked"
+                                : ""
+                            } ${
+                              habitToggleFx[h.id] === "unchecked"
+                                ? "fx-unchecked"
+                                : ""
                             }`}
                           >
                             {h.completed_today ? (

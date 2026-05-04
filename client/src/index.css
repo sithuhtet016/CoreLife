@@ -212,6 +212,14 @@ textarea:focus-visible,
   }
 }
 
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  textarea,
+  select {
+    font-size: max(16px, 1rem);
+  }
+}
+
 /* CoreLife component utilities (tokens-first) */
 /* Buttons */
 .btn {
@@ -347,6 +355,7 @@ h4 {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .cl-route-shell {
