@@ -101,7 +101,7 @@ function HeaderUserMenu({
           className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-gray-100 bg-white p-2 shadow-lg"
         >
           {mobileNavItems.length > 0 && (
-            <div className="mb-2 flex flex-col gap-1 border-b border-gray-100 pb-2 md:hidden">
+            <div className="mb-2 flex flex-col gap-1 border-b border-gray-100 pb-2 lg:hidden">
               {mobileNavItems.map((item) => {
                 const isActive = isActivePath(location.pathname, item.to);
 

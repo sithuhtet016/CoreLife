@@ -19,6 +19,7 @@ import { getComparison, getProgressHistory, getQuestions } from "../api";
 import AppHeader from "../components/AppHeader";
 import PageSkeleton from "../components/PageSkeleton";
 import { ensurePlotlyLoaded } from "../utils/loadPlotly";
+import { getLifeAreaAccent, toRgba } from "../utils/lifeAreaTheme";
 import type { AssessmentSession, ComparisonRow, LifeArea } from "../types";
 import {
   buildAreaScoreSummaries,
@@ -180,13 +181,13 @@ function ResultsPage() {
           r: scores,
           theta: labels,
           fill: "toself",
-          fillcolor: "rgba(59, 130, 246, 0.2)",
+          fillcolor: toRgba("#2563EB", 0.2),
           line: {
-            color: "#3B82F6",
+            color: "#2563EB",
             width: 2,
           },
           marker: {
-            color: "#3B82F6",
+            color: "#2563EB",
             size: 6,
           },
         },
@@ -235,19 +236,19 @@ function ResultsPage() {
           line: {
             shape: "spline",
             smoothing: 1.3,
-            color: "#3B82F6",
+            color: "#2563EB",
             width: 3,
           },
           marker: {
             size: 8,
             color: "#FFFFFF",
             line: {
-              color: "#3B82F6",
+              color: "#2563EB",
               width: 2,
             },
           },
           fill: "tozeroy",
-          fillcolor: "rgba(59, 130, 246, 0.1)",
+          fillcolor: toRgba("#2563EB", 0.1),
         },
       ];
 
@@ -574,7 +575,16 @@ function ResultsPage() {
                         className="p-4 rounded-2xl bg-surfaceAlt border border-gray-100 flex items-center justify-between group hover:border-gray-200 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                          <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+                            style={{
+                              backgroundColor: toRgba(
+                                getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+                                0.16,
+                              ),
+                              color: getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+                            }}
+                          >
                             {(() => {
                               const iconKey = area.name
                                 .toLowerCase()
@@ -653,7 +663,14 @@ function ResultsPage() {
                               iconByAreaName[iconKey] ??
                               iconByAreaName[area.name.toLowerCase()] ??
                               Activity;
-                            return <Icon className="w-4 h-4 text-red-400" />;
+                            return (
+                              <Icon
+                                className="w-4 h-4"
+                                style={{
+                                  color: getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+                                }}
+                              />
+                            );
                           })()}
                           <span className="font-semibold text-sm">
                             {area.name}

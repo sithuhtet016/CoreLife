@@ -139,7 +139,8 @@ function RequireDashboardAccess({ children }: { children: ReactElement }) {
 }
 
 function App() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
 
   useEffect(() => {
     void syncStoredTokenFromSession().catch(() => {
@@ -174,50 +175,52 @@ function App() {
         </div>
       }
     >
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/auth-required" element={<AuthRequiredPage />} />
-        <Route path="/assessment" element={<AssessmentPage />} />
-        <Route path="/assessment/step-2" element={<AssessmentStep2Page />} />
-        <Route path="/assessment/step-3" element={<AssessmentStep3Page />} />
-        <Route
-          path="/habit-tracker"
-          element={
-            <RequireDashboardAccess>
-              <HabitTrackerPage />
-            </RequireDashboardAccess>
-          }
-        />
-        <Route
-          path="/progress-analytics"
-          element={
-            <RequireDashboardAccess>
-              <ProgressAnalyticsPage />
-            </RequireDashboardAccess>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <RequireDashboardAccess>
-              <DashboardPage />
-            </RequireDashboardAccess>
-          }
-        />
-        <Route
-          path="/results"
-          element={
-            <RequireDashboardAccess>
-              <ResultsPage />
-            </RequireDashboardAccess>
-          }
-        />
-        <Route path="/legal" element={<LegalPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <div key={pathname} className="cl-route-shell">
+        <Routes location={location}>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/auth-required" element={<AuthRequiredPage />} />
+          <Route path="/assessment" element={<AssessmentPage />} />
+          <Route path="/assessment/step-2" element={<AssessmentStep2Page />} />
+          <Route path="/assessment/step-3" element={<AssessmentStep3Page />} />
+          <Route
+            path="/habit-tracker"
+            element={
+              <RequireDashboardAccess>
+                <HabitTrackerPage />
+              </RequireDashboardAccess>
+            }
+          />
+          <Route
+            path="/progress-analytics"
+            element={
+              <RequireDashboardAccess>
+                <ProgressAnalyticsPage />
+              </RequireDashboardAccess>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <RequireDashboardAccess>
+                <DashboardPage />
+              </RequireDashboardAccess>
+            }
+          />
+          <Route
+            path="/results"
+            element={
+              <RequireDashboardAccess>
+                <ResultsPage />
+              </RequireDashboardAccess>
+            }
+          />
+          <Route path="/legal" element={<LegalPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
     </Suspense>
   );
 }

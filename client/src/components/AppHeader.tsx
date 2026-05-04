@@ -25,7 +25,7 @@ function AppHeader() {
         <div className="flex items-center gap-3 sm:gap-6 lg:gap-8">
           <BrandLogo to="/dashboard" />
 
-          <nav className="hidden items-center gap-2 rounded-full border border-gray-100 bg-gray-50 p-2 md:flex lg:gap-3">
+          <nav className="hidden items-center gap-2 rounded-full border border-gray-100 bg-gray-50 p-2 lg:flex lg:gap-3">
             {APP_NAV_ITEMS.map((item) => {
               const isActive = isActivePath(location.pathname, item.to);
 

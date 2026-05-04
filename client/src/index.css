@@ -133,6 +133,8 @@ body {
   font-family: "Inter", "Segoe UI", sans-serif;
   color: var(--cl-text);
   background: var(--cl-bg-app);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 .score-circle {
@@ -159,6 +161,13 @@ button,
 input,
 select,
 textarea {
+  transition:
+    background-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
 }
 
 a:focus-visible,
@@ -340,6 +349,58 @@ h4 {
   min-height: 100vh;
 }
 
+.cl-route-shell {
+  animation: cl-page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cl-page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.995);
+    filter: saturate(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: saturate(1);
+  }
+}
+
+/* Keep interactions calm: tiny lift for actionable elements. */
+a:not(.skip-link):hover,
+button:hover,
+[role="button"]:hover {
+  transform: translateY(-1px);
+}
+
+a:not(.skip-link):active,
+button:active,
+[role="button"]:active {
+  transform: translateY(0);
+}
+
+/* Gentle reveal for sections/cards across pages without per-page edits. */
+main > section,
+main > div,
+section[class*="card"],
+div[class*="card"] {
+  animation: cl-section-settle 580ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 60ms;
+}
+
+@keyframes cl-section-settle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 .landing-root {
   --cl-navbar-bg: rgba(255, 255, 255, 0.62);
 }
@@ -457,4 +518,19 @@ h4 {
 #app-header a,
 header a {
   text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cl-route-shell {
+    animation: none !important;
+  }
 }

@@ -21,6 +21,7 @@ import {
   scheduleAlignedInterval,
 } from "../utils/dateTime";
 import { getHabitSummaryOrDefault } from "../utils/habitSummary";
+import { getLifeAreaAccent, toRgba } from "../utils/lifeAreaTheme";
 
 function getGreetingForHour(hour: number) {
   if (hour < 5) return "Good Night";
@@ -445,7 +446,14 @@ function DashboardPage() {
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                            style={{
+                              backgroundColor: toRgba(
+                                getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+                                0.2,
+                              ),
+                              color: getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+                            }}>
                             <i className="fas fa-heart-pulse"></i>
                           </div>
                           <div>

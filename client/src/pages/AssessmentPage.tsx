@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { FormEvent } from "react";
 import {
   Activity,
@@ -19,6 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { getStoredToken } from "../api";
 import { getAssessmentDraft, saveAssessmentDraft } from "../assessmentDraft";
 import BrandLogo from "../components/BrandLogo";
+import { getLifeAreaAccent, toRgba } from "../utils/lifeAreaTheme";
 import "./AssessmentPage.css";
 
 type LifeAreaOption = {
@@ -27,6 +29,7 @@ type LifeAreaOption = {
   description: string;
   icon: LucideIcon;
   defaultChecked?: boolean;
+  accentHex: string;
 };
 
 const LIFE_AREA_OPTIONS: LifeAreaOption[] = [
@@ -105,7 +108,10 @@ const LIFE_AREA_OPTIONS: LifeAreaOption[] = [
     description: "Belonging, contribution, and social impact",
     icon: Globe,
   },
-];
+].map((option) => ({
+  ...option,
+  accentHex: getLifeAreaAccent({ value: option.value }).hex,
+}));
 
 function AssessmentPage() {
   const navigate = useNavigate();
@@ -381,7 +387,17 @@ function AssessmentPage() {
                     const AreaIcon = area.icon;
 
                     return (
-                      <label key={area.value} className="life-area-card">
+                      <label
+                        key={area.value}
+                        className="life-area-card"
+                        style={
+                          {
+                            "--area-accent": area.accentHex,
+                            "--area-accent-soft": toRgba(area.accentHex, 0.12),
+                            "--area-accent-border": toRgba(area.accentHex, 0.5),
+                          } as CSSProperties
+                        }
+                      >
                         <input
                           type="checkbox"
                           name="life-areas"

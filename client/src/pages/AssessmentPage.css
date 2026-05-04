@@ -436,7 +436,7 @@
 }
 
 .life-area-card:hover .area-card-ui {
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: var(--area-accent-border, rgba(59, 130, 246, 0.5));
 }
 
 .life-area-card input:focus-visible + .area-card-ui {
@@ -462,13 +462,13 @@
 }
 
 .life-area-card input:checked + .area-card-ui {
-  border-color: var(--cl-primary);
+  border-color: var(--area-accent, var(--cl-primary));
   border-width: 2px;
-  background: var(--cl-primary-tint);
+  background: var(--area-accent-soft, var(--cl-primary-tint));
 }
 
 .life-area-card input:checked + .area-card-ui .area-icon {
-  background: var(--cl-primary);
+  background: var(--area-accent, var(--cl-primary));
   color: var(--cl-surface);
 }
 

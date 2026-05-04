@@ -10,6 +10,7 @@ import {
   getRecommendations,
 } from "../api";
 import { ensurePlotlyLoaded } from "../utils/loadPlotly";
+import { getLifeAreaAccent } from "../utils/lifeAreaTheme";
 import type {
   AssessmentSession,
   ComparisonRow,
@@ -119,8 +120,20 @@ function ProgressAnalyticsPage() {
   );
 
   const sessionsForRange = useMemo(() => {
-    const count = timeRange === "week" ? 7 : timeRange === "month" ? 4 : 3;
-    return history.slice(-count);
+    const days = timeRange === "week" ? 7 : timeRange === "month" ? 30 : 90;
+    const now = Date.now();
+    const windowStart = now - days * 24 * 60 * 60 * 1000;
+
+    return history.filter((session) => {
+      const sourceDate = session.completed_at ?? session.started_at;
+      const timestamp = sourceDate ? Date.parse(sourceDate) : Number.NaN;
+
+      if (Number.isNaN(timestamp)) {
+        return false;
+      }
+
+      return timestamp >= windowStart && timestamp <= now;
+    });
   }, [history, timeRange]);
 
   const habitCompletionPercent = useMemo(() => {
@@ -265,20 +278,9 @@ function ProgressAnalyticsPage() {
           return;
         }
 
-        const areaColors = [
-          "#2563EB",
-          "#0EA5E9",
-          "#14B8A6",
-          "#10B981",
-          "#84CC16",
-          "#F59E0B",
-          "#F97316",
-          "#EF4444",
-          "#EC4899",
-          "#8B5CF6",
-          "#6366F1",
-          "#64748B",
-        ];
+        const areaColors = areaBalanceRows.map((area) =>
+          getLifeAreaAccent({ id: area.id, name: area.name }).hex,
+        );
 
         const chartLabels = areaBalanceRows.map((area) => area.name);
         const chartScores = areaBalanceRows.map((area) => Math.round(area.score));

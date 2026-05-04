@@ -34,6 +34,7 @@ import {
 } from "../utils/dateTime";
 import { getHabitSummaryOrDefault } from "../utils/habitSummary";
 import "./HabitTrackerPage.css";
+import { getLifeAreaAccent } from "../utils/lifeAreaTheme";
 
 const MOTIVATION_QUOTES = [
   {
@@ -64,17 +65,13 @@ const MOTIVATION_QUOTES = [
 
 type HabitFrequency = "daily" | "weekly";
 
-const HABIT_AREA_OPTIONS = [
+const HABIT_AREA_BASE_OPTIONS = [
   {
     value: "health",
     label: "Health",
     icon: Activity,
     lifeAreaId: 1,
     defaultFrequency: "daily" as HabitFrequency,
-    chip: "bg-red-50 text-red-700 border-red-100 hover:bg-red-100",
-    chipActive: "bg-red-600 text-white shadow-red-600/20",
-    iconBg: "bg-red-100 text-red-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "appearance",
@@ -82,10 +79,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Sparkles,
     lifeAreaId: 2,
     defaultFrequency: "daily" as HabitFrequency,
-    chip: "bg-pink-50 text-pink-700 border-pink-100 hover:bg-pink-100",
-    chipActive: "bg-pink-600 text-white shadow-pink-600/20",
-    iconBg: "bg-pink-100 text-pink-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "love",
@@ -93,10 +86,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Heart,
     lifeAreaId: 3,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100",
-    chipActive: "bg-rose-600 text-white shadow-rose-600/20",
-    iconBg: "bg-rose-100 text-rose-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "family",
@@ -104,10 +93,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Home,
     lifeAreaId: 4,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-orange-50 text-orange-700 border-orange-100 hover:bg-orange-100",
-    chipActive: "bg-orange-600 text-white shadow-orange-600/20",
-    iconBg: "bg-orange-100 text-orange-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "friends",
@@ -115,10 +100,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Users,
     lifeAreaId: 5,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-cyan-50 text-cyan-700 border-cyan-100 hover:bg-cyan-100",
-    chipActive: "bg-cyan-600 text-white shadow-cyan-600/20",
-    iconBg: "bg-cyan-100 text-cyan-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "career",
@@ -126,10 +107,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Briefcase,
     lifeAreaId: 6,
     defaultFrequency: "daily" as HabitFrequency,
-    chip: "bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100",
-    chipActive: "bg-indigo-600 text-white shadow-indigo-600/20",
-    iconBg: "bg-indigo-100 text-indigo-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "money",
@@ -137,10 +114,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Wallet,
     lifeAreaId: 7,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100",
-    chipActive: "bg-emerald-600 text-white shadow-emerald-600/20",
-    iconBg: "bg-emerald-100 text-emerald-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "self-growth",
@@ -148,10 +121,6 @@ const HABIT_AREA_OPTIONS = [
     icon: TrendingUp,
     lifeAreaId: 8,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-violet-50 text-violet-700 border-violet-100 hover:bg-violet-100",
-    chipActive: "bg-violet-600 text-white shadow-violet-600/20",
-    iconBg: "bg-violet-100 text-violet-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "spirituality",
@@ -159,10 +128,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Compass,
     lifeAreaId: 9,
     defaultFrequency: "daily" as HabitFrequency,
-    chip: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-100 hover:bg-fuchsia-100",
-    chipActive: "bg-fuchsia-600 text-white shadow-fuchsia-600/20",
-    iconBg: "bg-fuchsia-100 text-fuchsia-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "recreation",
@@ -170,10 +135,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Gamepad2,
     lifeAreaId: 10,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-amber-50 text-amber-700 border-amber-100 hover:bg-amber-100",
-    chipActive: "bg-amber-600 text-white shadow-amber-600/20",
-    iconBg: "bg-amber-100 text-amber-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "environment",
@@ -181,10 +142,6 @@ const HABIT_AREA_OPTIONS = [
     icon: Leaf,
     lifeAreaId: 11,
     defaultFrequency: "daily" as HabitFrequency,
-    chip: "bg-lime-50 text-lime-700 border-lime-100 hover:bg-lime-100",
-    chipActive: "bg-lime-600 text-white shadow-lime-600/20",
-    iconBg: "bg-lime-100 text-lime-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
   {
     value: "community",
@@ -192,12 +149,19 @@ const HABIT_AREA_OPTIONS = [
     icon: Globe,
     lifeAreaId: 12,
     defaultFrequency: "weekly" as HabitFrequency,
-    chip: "bg-sky-50 text-sky-700 border-sky-100 hover:bg-sky-100",
-    chipActive: "bg-sky-600 text-white shadow-sky-600/20",
-    iconBg: "bg-sky-100 text-sky-600",
-    iconActiveBg: "bg-white/15 text-white",
   },
-] as const;
+];
+
+const HABIT_AREA_OPTIONS = HABIT_AREA_BASE_OPTIONS.map((option) => {
+  const accent = getLifeAreaAccent({ value: option.value });
+  return {
+    ...option,
+    chip: accent.chip,
+    chipActive: accent.chipActive,
+    iconBg: accent.iconBg,
+    iconActiveBg: "bg-white/15 text-white",
+  };
+});
 
 const LIFE_AREA_FILTERS = [
   {
