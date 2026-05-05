@@ -58,6 +58,7 @@ const testimonials = [
 
 function LandingPage() {
   const [testimonialPage, setTestimonialPage] = useState(0);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
 
   const totalTestimonialPages = Math.ceil(
     testimonials.length / TESTIMONIALS_PER_PAGE,
@@ -115,6 +116,19 @@ function LandingPage() {
     return () => observer.disconnect();
   }, [testimonialPage]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsHeaderScrolled(window.scrollY > 12);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   const handleHomeClick = () => {
     // Give immediate feedback when already on the home route.
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -140,7 +154,9 @@ function LandingPage() {
 
   return (
     <div className="landing-root">
-      <header className="landing-header cl-navbar-surface">
+      <header
+        className={`landing-header ${isHeaderScrolled ? "is-scrolled cl-navbar-surface" : ""}`}
+      >
         <div className="landing-container landing-header-inner">
           <BrandLogo to="/" onClick={handleHomeClick} />
 

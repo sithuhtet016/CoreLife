@@ -14,10 +14,25 @@
 }
 
 .landing-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   width: 100%;
   z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    backdrop-filter 220ms ease,
+    -webkit-backdrop-filter 220ms ease;
+}
+
+.landing-header.is-scrolled {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .landing-header-inner {
@@ -106,10 +121,6 @@
   transform: translateY(-1px) scale(1.01);
 }
 
-.landing-main {
-  padding-top: 4.5rem;
-}
-
 .hero-section {
   position: relative;
   min-height: 760px;
@@ -121,6 +132,10 @@
 }
 
 @media (max-width: 767px) {
+  .landing-header {
+    padding: max(0.35rem, env(safe-area-inset-top)) 0.4rem 0.35rem;
+  }
+
   .landing-container {
     padding: 0 var(--cl-spacing-md);
   }

@@ -474,8 +474,8 @@ div[class*="card"] {
     var(--cl-navbar-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid var(--cl-navbar-border);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  border-bottom: none;
+  box-shadow: none;
 }
 
 .cl-brand-link {
