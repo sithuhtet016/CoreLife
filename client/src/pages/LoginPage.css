@@ -165,8 +165,10 @@
 
 .eye-btn {
   position: absolute;
-  inset: 50% 1.25rem auto auto;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  right: 1.25rem;
+  margin-block: auto;
   border: 0;
   background: transparent;
   color: var(--cl-text-faint);

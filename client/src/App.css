@@ -133,7 +133,10 @@
 
 .eye-btn {
   position: absolute;
-  inset: 0 1.25rem 0 auto;
+  top: 0;
+  bottom: 0;
+  right: 1.25rem;
+  margin-block: auto;
   border: 0;
   background: transparent;
   color: var(--cl-text-faint);

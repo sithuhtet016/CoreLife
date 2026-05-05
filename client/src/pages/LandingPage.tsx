@@ -155,7 +155,7 @@ function LandingPage() {
   return (
     <div className="landing-root">
       <header
-        className={`landing-header ${isHeaderScrolled ? "is-scrolled cl-navbar-surface" : ""}`}
+        className={`landing-header cl-navbar-surface ${isHeaderScrolled ? "is-scrolled" : ""}`}
       >
         <div className="landing-container landing-header-inner">
           <BrandLogo to="/" onClick={handleHomeClick} />
