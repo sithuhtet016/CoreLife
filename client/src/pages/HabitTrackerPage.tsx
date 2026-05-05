@@ -61,6 +61,231 @@ const MOTIVATION_QUOTES = [
       "Make it so easy to start that your future self has no excuse to stop.",
     author: "CoreLife",
   },
+  {
+    quote:
+      "Progress in one life area creates momentum in the rest. Start with one win.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "A habit tracked is a promise remembered. Keep the streak honest and simple.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "You do not need a perfect day. You only need to keep your direction.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Tiny actions compound quietly until your routine becomes your identity.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Show up for two minutes today. Consistency grows from easy starts.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Discipline is self-respect in motion. Keep one promise to yourself today.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Health, work, money, and relationships all improve when your daily rhythm is steady.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Motivation starts the journey. Systems carry it through busy days.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Each check-in is a vote for the person you are becoming.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "When energy is low, lower the barrier, not the standard of showing up.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "A calm routine beats random effort. Repeat what works and refine what does not.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Build habits that survive real life, not just ideal days.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Long-term change looks ordinary in the moment and extraordinary over time.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Your future is shaped more by daily defaults than occasional motivation.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "One completed habit can reset your entire day. Start there.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Clarity comes from action. Log today first, optimize later.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "A better week is built one honest day at a time.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "The goal is not intensity every day. The goal is return every day.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Track what matters, then let that data guide your next small step.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Consistency feels slow until one day it looks like transformation.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "If it is worth becoming, it is worth repeating.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Keep your routine visible, simple, and hard to ignore.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Daily discipline reduces daily decision fatigue.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Your streak is not pressure. It is proof that you can continue.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Win the morning with one habit, then build from that momentum.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "You are one repeated action away from a different identity.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Momentum loves completion. Finish one small habit now.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Habits are how plans survive unpredictable days.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "It counts even when it is imperfect. Especially then.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Your calendar reflects your priorities. Your habits shape your results.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Small daily courage beats occasional big ambition.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Set a tiny baseline, then protect it every day.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "You cannot control every outcome, but you can control today’s reps.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "A sustainable pace is a superpower in long-term growth.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Repeat the basics long enough and they become your edge.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "The hard part is starting. The smart part is making starts easy.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Habits turn hope into schedule and schedule into progress.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Treat today like a checkpoint, not a final exam.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Reduce friction for good habits and increase friction for distractions.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Routine is not restriction. It is freedom from constant negotiation.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "When you miss once, recover fast. Recovery speed builds resilience.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "A focused 10 minutes can outperform an unfocused hour.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "You are not behind. You are one completed action from moving forward.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Let your habits be so clear that starting feels automatic.",
+    author: "CoreLife",
+  },
+  {
+    quote:
+      "Build a life you do not need to escape from, one routine at a time.",
+    author: "CoreLife",
+  },
 ];
 
 type HabitFrequency = "daily" | "weekly";

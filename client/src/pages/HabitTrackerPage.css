@@ -179,172 +179,62 @@
 
 /* Habit toggle animations */
 .habit-toggle {
+  position: relative;
   transition:
-    background-color 160ms ease,
-    transform 140ms ease;
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform, background-color;
 }
 .habit-toggle:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
 .habit-toggle .check-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transform: scale(0.78) rotate(-6deg);
-  opacity: 0;
-  transition:
-    transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1),
-    opacity 160ms ease;
-}
-
-.habit-toggle .check-icon .check-svg {
-  display: block;
-}
-
-.habit-toggle.completed .check-icon {
-  transform: scale(1.12) rotate(0deg);
-  opacity: 1;
-}
-
-/* Ensure the check SVG is perfectly centered visually */
-.habit-toggle .check-icon {
   width: 100%;
   height: 100%;
   line-height: 0;
+  transform: scale(0.84);
+  opacity: 0;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 180ms ease;
 }
+
 .habit-toggle .check-icon .check-svg {
   display: block;
-  width: 1.35rem; /* slightly larger check */
-  height: 1.35rem;
-  transform-origin: center;
-  transform: translateY(0);
+  width: 1.25rem;
+  height: 1.25rem;
 }
-.habit-toggle.completed .check-icon .check-svg {
-  transform: translateY(0);
+
+.habit-toggle.completed .check-icon {
+  transform: scale(1);
+  opacity: 1;
 }
 
 .habit-toggle .dot {
   transform: scale(1);
   opacity: 1;
   transition:
-    transform 180ms cubic-bezier(0.2, 0.9, 0.3, 1),
-    opacity 140ms ease,
-    border-color 140ms ease;
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 160ms ease,
+    border-color 220ms ease;
 }
 
 .habit-toggle.completed .dot {
-  transform: scale(0.3);
+  transform: scale(0.4);
   opacity: 0;
   border-color: transparent;
 }
 
-/* subtle pop when checking */
-@keyframes habit-pop {
+@keyframes habit-check-pulse {
   0% {
-    transform: scale(0.9);
+    transform: scale(0.96);
   }
-  60% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-.habit-toggle.fx-checked {
-  animation: habit-pop 260ms ease;
-}
-
-/* extra sparkles/pop helpers for a cute effect */
-.habit-toggle {
-  position: relative;
-}
-.habit-toggle .sparkles {
-  position: absolute;
-  pointer-events: none;
-  inset: -6px -6px auto auto;
-  width: 0;
-  height: 0;
-}
-.habit-toggle .sparkles::before,
-.habit-toggle .sparkles::after {
-  content: "";
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.12) 60%
-  );
-  border-radius: 50%;
-  opacity: 0;
-}
-.habit-toggle.fx-checked .sparkles::before {
-  left: -4px;
-  top: -4px;
-  animation: habit-pop-spark 420ms ease-out forwards;
-}
-.habit-toggle.fx-checked .sparkles::after {
-  right: -4px;
-  top: -6px;
-  animation: habit-pop-spark 420ms 60ms ease-out forwards;
-}
-@keyframes habit-pop-spark {
-  0% {
-    transform: scale(0.32);
-    opacity: 1;
-  }
-  60% {
-    transform: scale(1.06);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.6);
-    opacity: 0;
-  }
-}
-
-.habit-toggle.fx-unchecked {
-  animation: habit-untick 260ms ease;
-}
-
-.habit-toggle.fx-unchecked .dot {
-  animation: habit-dot-return 260ms cubic-bezier(0.2, 0.9, 0.3, 1);
-}
-
-.habit-toggle.fx-unchecked .sparkles::before,
-.habit-toggle.fx-unchecked .sparkles::after {
-  width: 7px;
-  height: 7px;
-  background: radial-gradient(
-    circle,
-    rgba(148, 163, 184, 0.75) 0%,
-    rgba(148, 163, 184, 0.1) 65%
-  );
-}
-
-.habit-toggle.fx-unchecked .sparkles::before {
-  left: -5px;
-  top: -3px;
-  animation: habit-untick-poof 300ms ease-out forwards;
-}
-
-.habit-toggle.fx-unchecked .sparkles::after {
-  right: -3px;
-  top: -6px;
-  animation: habit-untick-poof 300ms 40ms ease-out forwards;
-}
-
-@keyframes habit-untick {
-  0% {
-    transform: scale(1);
-  }
-  35% {
-    transform: scale(0.92);
-  }
-  72% {
+  50% {
     transform: scale(1.03);
   }
   100% {
@@ -352,28 +242,61 @@
   }
 }
 
-@keyframes habit-dot-return {
+.habit-toggle.fx-checked {
+  animation: habit-check-pulse 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.habit-toggle .sparkles {
+  position: absolute;
+  pointer-events: none;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  opacity: 0;
+  transform: scale(0.86);
+}
+
+@keyframes habit-ring-pulse {
   0% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.18);
-    opacity: 1;
+    opacity: 0.32;
+    transform: scale(0.86);
   }
   100% {
-    transform: scale(1);
-    opacity: 1;
+    opacity: 0;
+    transform: scale(1.16);
   }
 }
 
-@keyframes habit-untick-poof {
+.habit-toggle.fx-checked .sparkles {
+  animation: habit-ring-pulse 280ms ease-out forwards;
+}
+
+@keyframes habit-uncheck-settle {
   0% {
-    transform: scale(0.2);
-    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.97);
   }
   100% {
-    transform: scale(1.45);
-    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+.habit-toggle.fx-unchecked {
+  animation: habit-uncheck-settle 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .habit-toggle,
+  .habit-toggle .check-icon,
+  .habit-toggle .dot {
+    transition-duration: 1ms !important;
+  }
+
+  .habit-toggle.fx-checked,
+  .habit-toggle.fx-unchecked,
+  .habit-toggle.fx-checked .sparkles {
+    animation: none !important;
   }
 }

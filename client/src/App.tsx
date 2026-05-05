@@ -7,10 +7,11 @@ import {
   syncStoredTokenFromSession,
 } from "./api";
 
-const LandingPage = lazy(() => import("./pages/LandingPage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+
 const AssessmentPage = lazy(() => import("./pages/AssessmentPage"));
 const AssessmentStep2Page = lazy(
   () => import("./pages/AssessmentStep2Page.tsx"),

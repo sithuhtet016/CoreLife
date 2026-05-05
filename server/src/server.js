@@ -272,6 +272,12 @@ function shiftDateKey(dateKey, deltaDays) {
   return base.toISOString().slice(0, 10);
 }
 
+function dateKeyToEpochDay(dateKey) {
+  const parsed = new Date(`${String(dateKey).trim()}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return Math.trunc(parsed.getTime() / 86_400_000);
+}
+
 const recommendationLibrary = [
   {
     id: "health-sleep",
@@ -815,10 +821,6 @@ async function getAnswersBySession(sessionId) {
 }
 
 function computeHabitMetrics(logs, options = {}) {
-  const sorted = [...logs].sort((a, b) =>
-    String(a.date).localeCompare(String(b.date)),
-  );
-
   const todayKey =
     typeof options.todayKey === "string" && options.todayKey.trim()
       ? options.todayKey.trim()
@@ -828,7 +830,7 @@ function computeHabitMetrics(logs, options = {}) {
     : getRecentDateKeysForTimezoneOffset(0, 7);
 
   const completionByDate = new Map();
-  for (const log of sorted) {
+  for (const log of logs) {
     completionByDate.set(String(log.date), Boolean(log.completed));
   }
 
@@ -845,24 +847,21 @@ function computeHabitMetrics(logs, options = {}) {
     streakAnchor = shiftDateKey(streakAnchor, -1);
   }
 
-  const allDateKeys = [...completionByDate.keys()].sort((a, b) =>
-    a.localeCompare(b),
-  );
+  const completedDays = [];
+  for (const [dateKey, isCompleted] of completionByDate.entries()) {
+    if (!isCompleted) continue;
+    const day = dateKeyToEpochDay(dateKey);
+    if (day === null) continue;
+    completedDays.push(day);
+  }
+  completedDays.sort((a, b) => a - b);
+
   let longestStreak = 0;
   let runningStreak = 0;
-  let previousCompletedDateKey = null;
+  let previousCompletedDay = null;
 
-  for (const dateKey of allDateKeys) {
-    if (!completionByDate.get(dateKey)) {
-      runningStreak = 0;
-      previousCompletedDateKey = null;
-      continue;
-    }
-
-    if (
-      previousCompletedDateKey &&
-      shiftDateKey(previousCompletedDateKey, 1) === dateKey
-    ) {
+  for (const day of completedDays) {
+    if (previousCompletedDay !== null && previousCompletedDay + 1 === day) {
       runningStreak += 1;
     } else {
       runningStreak = 1;
@@ -872,7 +871,7 @@ function computeHabitMetrics(logs, options = {}) {
       longestStreak = runningStreak;
     }
 
-    previousCompletedDateKey = dateKey;
+    previousCompletedDay = day;
   }
 
   const completedRecent = recentDateKeys.filter((dateKey) =>
@@ -1895,18 +1894,29 @@ app.get("/api/habits", requireAuth, async (req, res) => {
     });
   }
 
-  const logsByHabit = new Map();
-  for (const log of logs ?? []) {
-    const current = logsByHabit.get(log.habit_id) ?? [];
-    current.push(log);
-    logsByHabit.set(log.habit_id, current);
-  }
-
   const today = getDateKeyForTimezoneOffset(timezoneOffsetMinutes);
   const recentDateKeys = getRecentDateKeysForTimezoneOffset(
     timezoneOffsetMinutes,
     7,
   );
+  const recentDateKeySet = new Set(recentDateKeys);
+
+  const logsByHabit = new Map();
+  const completedDateKeySet = new Set();
+  let completedTodayCount = 0;
+
+  for (const log of logs ?? []) {
+    const habitId = log.habit_id;
+    const current = logsByHabit.get(habitId) ?? [];
+    current.push(log);
+    logsByHabit.set(habitId, current);
+
+    if (log.completed) {
+      const dateKey = String(log.date);
+      if (dateKey === today) completedTodayCount += 1;
+      if (recentDateKeySet.has(dateKey)) completedDateKeySet.add(dateKey);
+    }
+  }
 
   const enrichedHabits = habits.map((habit) => {
     const metrics = computeHabitMetrics(logsByHabit.get(habit.id) ?? [], {
@@ -1923,12 +1933,8 @@ app.get("/api/habits", requireAuth, async (req, res) => {
       ),
     };
   });
-  const completedTodayCount = (logs ?? []).filter(
-    (log) => log.date === today && log.completed,
-  ).length;
-
   const weeklyActivity = recentDateKeys.map((dayKey) =>
-    (logs ?? []).some((log) => log.date === dayKey && log.completed),
+    completedDateKeySet.has(dayKey),
   );
 
   const currentStreakValues = enrichedHabits.map((habit) => habit.streak ?? 0);

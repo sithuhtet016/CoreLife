@@ -56,6 +56,7 @@
   --cl-indigo: #1d4ed8;
   --cl-indigo-tint: #dbeafe;
   --cl-navbar-bg: rgba(239, 246, 255, 0.58);
+  --cl-navbar-border: rgba(148, 163, 184, 0.24);
 
   /* Layout */
   --cl-container-xl: 80rem;
@@ -411,15 +412,15 @@ div[class*="card"] {
 }
 
 .landing-root {
-  --cl-navbar-bg: rgba(255, 255, 255, 0.62);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .login-page {
-  --cl-navbar-bg: rgba(236, 231, 255, 0.5);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .register-page {
-  --cl-navbar-bg: rgba(239, 233, 255, 0.5);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .auth-required-page {
@@ -427,15 +428,15 @@ div[class*="card"] {
 }
 
 .assessment-page {
-  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .assessment2-page {
-  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .assessment3-page {
-  --cl-navbar-bg: rgba(226, 236, 255, 0.58);
+  --cl-navbar-bg: rgba(243, 248, 255, 0.7);
 }
 
 .dashboard-page {
@@ -466,14 +467,15 @@ div[class*="card"] {
   background:
     linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.38),
-      rgba(255, 255, 255, 0.12) 40%,
-      rgba(255, 255, 255, 0.04)
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0.2) 42%,
+      rgba(255, 255, 255, 0.06)
     ),
     var(--cl-navbar-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: none;
+  border-bottom: 1px solid var(--cl-navbar-border);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .cl-brand-link {

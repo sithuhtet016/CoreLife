@@ -600,7 +600,7 @@ function DashboardPage() {
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 bg-dark text-white text-sm px-4 py-3 rounded-xl shadow-lg z-50"
+          className="fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-xl bg-dark px-4 py-3 text-sm text-white shadow-lg sm:bottom-6 sm:left-auto sm:right-6 sm:w-auto sm:translate-x-0"
         >
           {toast}
         </div>

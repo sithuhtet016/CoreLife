@@ -355,6 +355,7 @@ body {
 /* Focus Areas Section */
 #weakest-areas {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   background-color: var(--cl-text);
   border-radius: var(--cl-radius-2xl);
@@ -374,6 +375,7 @@ body {
   border-radius: 50%;
   filter: blur(64px);
   pointer-events: none;
+  z-index: 0;
 }
 
 #weakest-areas h3 {
@@ -561,5 +563,21 @@ body {
 
   #weakest-areas {
     padding: var(--cl-spacing-md);
+  }
+
+  #weakest-areas::before {
+    width: 96px;
+    height: 96px;
+    top: -24px;
+    right: -24px;
+    filter: blur(36px);
+  }
+
+  .focus-area-header {
+    flex-wrap: wrap;
+  }
+
+  .focus-area-priority {
+    white-space: normal;
   }
 }

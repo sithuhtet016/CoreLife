@@ -20,6 +20,7 @@ import { getBrowserTimezoneOffsetMinutes } from "./utils/dateTime";
 const TOKEN_KEY = "corelife_token";
 const TRUSTED_LOGIN_KEY = "corelife_trusted_login";
 let hasCompletedAssessmentCache: boolean | null = null;
+let hasCompletedAssessmentCacheToken: string | null = null;
 
 type TrustedLoginRecord = {
   email: string;
@@ -128,12 +129,16 @@ export function setStoredToken(token: string) {
   const secondary = getSecondaryTokenStorage(primary);
   primary.setItem(TOKEN_KEY, token);
   secondary.removeItem(TOKEN_KEY);
+  hasCompletedAssessmentCache = null;
+  hasCompletedAssessmentCacheToken = null;
 }
 
 export function clearStoredToken() {
   if (!isBrowser()) return;
   window.localStorage.removeItem(TOKEN_KEY);
   window.sessionStorage.removeItem(TOKEN_KEY);
+  hasCompletedAssessmentCache = null;
+  hasCompletedAssessmentCacheToken = null;
 }
 
 export function hasTrustedRememberedLogin(email: string) {
@@ -481,7 +486,6 @@ export async function resendLoginOtpChallenge(challengeId: string) {
 export async function signOutUser() {
   await supabase.auth.signOut();
   clearStoredToken();
-  hasCompletedAssessmentCache = null;
 }
 
 export async function requestPasswordReset(email: string) {
@@ -569,6 +573,7 @@ export function submitAssessment(
     }),
   }).then((result) => {
     hasCompletedAssessmentCache = true;
+    hasCompletedAssessmentCacheToken = getStoredToken();
     return result;
   });
 }
@@ -664,7 +669,15 @@ export function getProgressHistory() {
 }
 
 export async function hasCompletedAssessment(forceRefresh = false) {
-  if (!forceRefresh && hasCompletedAssessmentCache !== null) {
+  const activeToken = getStoredToken();
+  const cachedToken = hasCompletedAssessmentCacheToken;
+
+  if (
+    !forceRefresh &&
+    hasCompletedAssessmentCache !== null &&
+    cachedToken !== null &&
+    activeToken === cachedToken
+  ) {
     return hasCompletedAssessmentCache;
   }
 
@@ -674,5 +687,6 @@ export async function hasCompletedAssessment(forceRefresh = false) {
 
   const hasCompleted = Array.isArray(sessions) && sessions.length > 0;
   hasCompletedAssessmentCache = hasCompleted;
+  hasCompletedAssessmentCacheToken = activeToken;
   return hasCompleted;
 }

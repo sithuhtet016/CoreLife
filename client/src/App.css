@@ -139,11 +139,16 @@
   color: var(--cl-text-faint);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  line-height: 0;
 }
 
 .eye-btn svg {
+  display: block;
   width: 0.9rem;
   height: 0.9rem;
+  flex: 0 0 auto;
 }
 
 .options-row {

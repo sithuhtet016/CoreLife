@@ -10,6 +10,7 @@
     var(--cl-bg-gradient-end) 100%
   );
   color: var(--cl-text);
+  overflow-x: clip;
 }
 
 .assessment-page ::-webkit-scrollbar {
@@ -108,6 +109,7 @@
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.5);
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
 }
@@ -117,6 +119,7 @@
   border-radius: 9999px;
   opacity: 0.6;
   pointer-events: none;
+  z-index: 0;
 }
 
 .assessment-blob-a {
@@ -230,7 +233,7 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  height: 700px;
+  height: min(700px, calc(100dvh - 14rem));
   overflow-y: auto;
 }
 
@@ -524,6 +527,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   padding: 0.9rem 1.75rem;
+  min-height: 44px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -567,6 +571,14 @@
   background: var(--cl-primary-hover);
 }
 
+.assessment-btn-light:focus-visible,
+.assessment-btn-muted:focus-visible,
+.assessment-btn-primary:focus-visible,
+.assessment-footer nav a:focus-visible {
+  box-shadow: var(--cl-ring);
+  border-radius: var(--cl-radius-md);
+}
+
 .assessment-footer {
   width: 100%;
   padding: 1.5rem 0;
@@ -577,8 +589,23 @@
 .assessment-footer nav {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .assessment-blob-a {
+    width: 240px;
+    height: 240px;
+    filter: blur(48px);
+  }
+
+  .assessment-blob-b {
+    width: 200px;
+    height: 200px;
+    filter: blur(40px);
+  }
 }
 
 .assessment-footer nav a {
@@ -640,7 +667,7 @@
   }
 
   .assessment-sidebar {
-    width: 320px;
+    width: clamp(260px, 30vw, 320px);
     border-bottom: 0;
     border-right: 1px solid var(--cl-border-soft);
   }
@@ -742,5 +769,30 @@
   .assessment-content {
     height: auto;
     overflow: visible;
+  }
+
+  .assessment-blob-a {
+    width: 180px;
+    height: 180px;
+    top: -50px;
+    left: -60px;
+    filter: blur(28px);
+  }
+
+  .assessment-blob-b {
+    width: 160px;
+    height: 160px;
+    right: -45px;
+    bottom: -50px;
+    filter: blur(24px);
+  }
+
+  .assessment-action-bar {
+    position: static;
+    backdrop-filter: none;
+  }
+
+  .assessment-row {
+    gap: 1rem;
   }
 }

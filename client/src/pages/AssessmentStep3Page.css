@@ -12,6 +12,7 @@
     var(--cl-bg-gradient-start) 0%,
     var(--cl-bg-gradient-end) 100%
   );
+  overflow-x: clip;
 }
 
 .assessment3-header {
@@ -110,6 +111,7 @@
   box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  isolation: isolate;
 }
 
 .assessment3-blob {
@@ -117,6 +119,7 @@
   border-radius: 999px;
   opacity: 0.6;
   pointer-events: none;
+  z-index: 0;
 }
 
 .assessment3-blob-a {
@@ -320,7 +323,7 @@
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  height: 700px;
+  height: min(700px, calc(100dvh - 14rem));
   overflow-y: auto;
 }
 
@@ -535,6 +538,7 @@
 
 .priority-checkbox > div {
   padding: 1rem;
+  min-height: 52px;
   border-radius: 0.75rem;
   border: 2px solid var(--cl-border-soft);
   background: var(--cl-surface-alt);
@@ -633,6 +637,10 @@
   box-shadow: var(--cl-ring);
 }
 
+.priority-checkbox input:focus-visible + div {
+  box-shadow: var(--cl-ring);
+}
+
 .priority-checkbox input:checked + div {
   border-color: var(--cl-primary);
   background: var(--cl-primary-tint);
@@ -669,6 +677,7 @@
 .time-option span {
   width: 100%;
   padding: 1rem 0;
+  min-height: 44px;
   border-radius: 0.75rem;
   border: 2px solid var(--cl-border-soft);
   background: var(--cl-surface-alt);
@@ -692,6 +701,10 @@
   background: var(--cl-primary);
   transform: scale(1.05);
   box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.5);
+}
+
+.time-option input:focus-visible + span {
+  box-shadow: var(--cl-ring);
 }
 
 .assessment3-actions {
@@ -729,6 +742,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 44px;
 }
 
 .assessment3-btn-ghost {
@@ -780,6 +794,14 @@
   height: 0.75rem;
 }
 
+.assessment3-btn-ghost:focus-visible,
+.assessment3-btn-muted:focus-visible,
+.assessment3-btn-primary:focus-visible,
+.assessment3-footer nav a:focus-visible {
+  box-shadow: var(--cl-ring);
+  border-radius: var(--cl-radius-md);
+}
+
 .assessment3-footer {
   width: 100%;
   padding: 1.5rem 0;
@@ -790,8 +812,23 @@
 .assessment3-footer nav {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .assessment3-blob-a {
+    width: 240px;
+    height: 240px;
+    filter: blur(46px);
+  }
+
+  .assessment3-blob-b {
+    width: 200px;
+    height: 200px;
+    filter: blur(38px);
+  }
 }
 
 .assessment3-footer nav a {
@@ -844,7 +881,7 @@
   }
 
   .assessment3-sidebar {
-    width: 320px;
+    width: clamp(260px, 30vw, 320px);
     border-right: 1px solid var(--cl-border-soft);
     border-bottom: 0;
   }
@@ -890,6 +927,35 @@
     padding: 1.5rem 1rem;
     height: auto;
     overflow: visible;
+  }
+
+  .assessment3-blob-a {
+    width: 170px;
+    height: 170px;
+    top: -50px;
+    left: -50px;
+    filter: blur(26px);
+  }
+
+  .assessment3-blob-b {
+    width: 150px;
+    height: 150px;
+    right: -36px;
+    bottom: -50px;
+    filter: blur(24px);
+  }
+
+  .assessment3-actions {
+    position: static;
+    backdrop-filter: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .assessment3-actions-right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .assessment3-form {

@@ -311,6 +311,7 @@ function RegisterPage() {
                         className="register-otp-input"
                         type="text"
                         inputMode="numeric"
+                        maxLength={6}
                         autoComplete="one-time-code"
                         placeholder="Enter 6-digit code"
                         value={otpCode}

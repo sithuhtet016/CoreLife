@@ -121,6 +121,9 @@ create table if not exists habits (
   created_at timestamptz not null default now()
 );
 
+create index if not exists idx_habits_user_id_created_at
+  on habits(user_id, created_at desc);
+
 create table if not exists habit_logs (
   id uuid primary key default gen_random_uuid(),
   habit_id uuid not null references habits(id) on delete cascade,

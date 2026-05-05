@@ -89,6 +89,8 @@ function LoginPage() {
   const redirectTo = redirectState?.from ?? "/dashboard";
   const isAuthenticated = Boolean(getStoredToken());
   const isOtpStep = Boolean(otpChallengeId);
+  const hasTrustedDeviceForEmail =
+    rememberMe && Boolean(email.trim()) && hasTrustedRememberedLogin(email);
 
   const syncDraftAfterAuth = async () => {
     try {
@@ -433,6 +435,14 @@ function LoginPage() {
                       </button>
                     </div>
 
+                    <p className="auth-info remember-note">
+                      {rememberMe
+                        ? hasTrustedDeviceForEmail
+                          ? "This device is trusted for this email, so sign in may skip the one-time code."
+                          : "Keep me signed in on this device. After email verification, this device will be trusted for faster sign-in."
+                        : "Use this for shared devices. You may need to verify with a one-time code next time."}
+                    </p>
+
                     {showResetForm && (
                       <div className="reset-panel">
                         <p>
@@ -481,6 +491,7 @@ function LoginPage() {
                         name="otp"
                         type="text"
                         inputMode="numeric"
+                        maxLength={6}
                         autoComplete="one-time-code"
                         placeholder="Enter 6-digit code"
                         value={otpCode}
