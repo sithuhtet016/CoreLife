@@ -128,7 +128,7 @@
 
 @media (max-width: 767px) {
   .landing-header {
-    padding: 0 1rem;
+    padding: 0;
   }
 
   .landing-container {
