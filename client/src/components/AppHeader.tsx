@@ -4,6 +4,7 @@ import HeaderUserMenu from "./HeaderUserMenu";
 
 const APP_NAV_ITEMS = [
   { label: "Dashboard", to: "/dashboard" },
+  { label: "CoreReads", to: "/core-reads" },
   { label: "Habit Tracker", to: "/habit-tracker" },
   { label: "Progress & Analytics", to: "/progress-analytics" },
   { label: "Results", to: "/results" },
