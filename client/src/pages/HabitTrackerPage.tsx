@@ -1476,14 +1476,15 @@ function HabitTrackerPage() {
       </main>
 
       {habitModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:p-4 md:items-center md:p-5 lg:p-6">
+        <div className="fixed inset-0 z-[60] h-screen h-[100dvh] overflow-y-auto p-3 sm:p-4 md:p-5 lg:p-6">
           <button
             type="button"
             aria-label="Close habit creator"
             className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             onClick={closeHabitCreator}
           />
-          <div className="relative flex h-[100dvh] w-full max-h-[100dvh] max-w-6xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-2xl ring-1 ring-black/5 sm:h-auto sm:max-h-[95vh] sm:rounded-[32px] md:max-h-[92vh] md:max-w-5xl lg:max-h-[90vh] lg:max-w-6xl">
+          <div className="relative flex min-h-full w-full items-center justify-center">
+            <div className="relative my-auto flex w-full max-h-[calc(100dvh-1.5rem)] max-w-6xl flex-col overflow-hidden rounded-[28px] bg-white shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100vh-2rem)] sm:rounded-[32px] md:max-h-[calc(100vh-2.5rem)] md:max-w-5xl lg:max-h-[calc(100vh-3rem)] lg:max-w-6xl">
             <div className="flex items-start justify-between gap-3 border-b border-gray-100 bg-gradient-to-r from-white via-slate-50 to-white px-4 pb-4 pt-5 sm:gap-4 sm:px-6 sm:pb-5 sm:pt-8 lg:px-8">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
@@ -1972,6 +1973,7 @@ function HabitTrackerPage() {
                     </aside>
                   </div>
                 )}
+            </div>
             </div>
           </div>
         </div>
