@@ -11,7 +11,6 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import CoreReadsLandingPage from "./pages/CoreReadsLandingPage";
 
 const AssessmentPage = lazy(() => import("./pages/AssessmentPage"));
 const AssessmentStep2Page = lazy(
@@ -164,7 +163,6 @@ function App() {
       "/progress-analytics": "CoreLife - Progress & Analytics",
       "/results": "CoreLife - Your CoreLife Score",
       "/legal": "CoreLife - Privacy, Terms & Support",
-      "/core-reads": "CoreReads - Bilingual Book Insights",
     };
 
     document.title = pageTitles[pathname] ?? "CoreLife";
@@ -221,7 +219,6 @@ function App() {
             }
           />
           <Route path="/legal" element={<LegalPage />} />
-          <Route path="/core-reads" element={<CoreReadsLandingPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
