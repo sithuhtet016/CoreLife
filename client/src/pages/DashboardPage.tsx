@@ -30,9 +30,9 @@ import {
   getLatestSession,
 } from "../utils/assessmentSummary";
 import {
+  getLocalWeekdayLabelsStartingMonday,
   getMillisecondsUntilNextLocalMidnight,
   getMillisecondsUntilNextMinute,
-  getRecentLocalWeekdayLabels,
   scheduleAlignedInterval,
 } from "../utils/dateTime";
 import { getHabitSummaryOrDefault } from "../utils/habitSummary";
@@ -214,7 +214,7 @@ function DashboardPage() {
         (habitSummary.completedTodayCount / habitSummary.totalHabits) * 100,
       )
     : 0;
-  const weeklyLabels = useMemo(() => getRecentLocalWeekdayLabels(7), []);
+  const weeklyLabels = useMemo(() => getLocalWeekdayLabelsStartingMonday(), []);
   const areaSummaries = useMemo(
     () => buildAreaScoreSummaries(latestSession, lifeAreas),
     [latestSession, lifeAreas],

@@ -23,6 +23,7 @@ import "./LoginPage.css";
 
 type AuthRedirectState = {
   from?: string;
+  intent?: "save-assessment" | "assessment-complete";
 };
 
 const DASHBOARD_PATHS = [
@@ -544,7 +545,12 @@ function LoginPage() {
 
               <p className="signup-copy">
                 Don&apos;t have an account?
-                <Link to="/register">Sign Up now</Link>
+                <Link
+                  to="/register"
+                  state={{ from: redirectTo, intent: redirectState?.intent }}
+                >
+                  Sign Up now
+                </Link>
               </p>
             </div>
           </section>

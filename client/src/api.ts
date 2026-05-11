@@ -227,8 +227,29 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     ...options,
   });
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || `Request failed: ${response.status}`);
+    const text = await response.text();
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json") && text) {
+      let parsedMessage: string | null = null;
+      try {
+        const payload = JSON.parse(text) as {
+          error?: unknown;
+          message?: unknown;
+        };
+        parsedMessage =
+          typeof payload.error === "string"
+            ? payload.error
+            : typeof payload.message === "string"
+              ? payload.message
+              : null;
+      } catch {
+        // Fall through to the raw text if the error payload is not JSON.
+      }
+      if (parsedMessage) {
+        throw new Error(parsedMessage);
+      }
+    }
+    throw new Error(text || `Request failed: ${response.status}`);
   }
 
   if (response.status === 204) {
@@ -643,6 +664,13 @@ export function updateHabit(
   return request<{ habit: Habit }>(`/api/habits/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload),
+  });
+}
+
+export function reorderHabits(habitIds: string[]) {
+  return request<{ ok: true }>("/api/habits/reorder", {
+    method: "PUT",
+    body: JSON.stringify({ habitIds }),
   });
 }
 

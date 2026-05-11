@@ -21,6 +21,24 @@
   border: 1px solid #f3f4f6;
 }
 
+.habit-order-row {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 140ms ease,
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.habit-order-row--dragged {
+  transform: scale(0.985);
+}
+
+.habit-drag-handle {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 .checkbox-wrapper-12 {
   position: relative;
 }
@@ -288,6 +306,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .habit-order-row,
   .habit-toggle,
   .habit-toggle .check-icon,
   .habit-toggle .dot {

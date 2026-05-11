@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type PointerEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Activity,
   Briefcase,
+  ChevronDown,
+  ChevronUp,
   Compass,
   Gamepad2,
   Globe,
+  GripVertical,
   Heart,
   Home,
   Layers3,
@@ -22,14 +31,15 @@ import {
   getRecommendations,
   updateHabit,
   deleteHabit,
+  reorderHabits,
 } from "../api";
 import AppHeader from "../components/AppHeader";
 import { ensurePlotlyLoaded } from "../utils/loadPlotly";
 import type { Recommendation, Habit, HabitSummary } from "../types";
 import {
   getLocalDateKey,
+  getLocalWeekdayLabelsStartingMonday,
   getMillisecondsUntilNextLocalMidnight,
-  getRecentLocalWeekdayLabels,
   scheduleAlignedInterval,
 } from "../utils/dateTime";
 import { getHabitSummaryOrDefault } from "../utils/habitSummary";
@@ -502,6 +512,9 @@ function HabitTrackerPage() {
   const [habitPriorityAreas, setHabitPriorityAreas] = useState<
     HabitAreaValue[]
   >([]);
+  const [expandedTemplateAreaIds, setExpandedTemplateAreaIds] = useState<
+    Record<number, boolean>
+  >({});
   const [habitDraft, setHabitDraft] = useState<HabitDraftState>(() =>
     getHabitDraftSeed("health"),
   );
@@ -511,6 +524,16 @@ function HabitTrackerPage() {
     getHabitSummaryOrDefault(null),
   );
   const [togglingIds, setTogglingIds] = useState<Record<string, boolean>>({});
+  const [habitOrderEditing, setHabitOrderEditing] = useState(false);
+  const [habitOrderDirty, setHabitOrderDirty] = useState(false);
+  const [habitOrderSaving, setHabitOrderSaving] = useState(false);
+  const [habitOrderSnapshot, setHabitOrderSnapshot] = useState<Habit[] | null>(
+    null,
+  );
+  const [draggedHabitId, setDraggedHabitId] = useState<string | null>(null);
+  const draggedHabitIdRef = useRef<string | null>(null);
+  const habitRowRefsRef = useRef<Record<string, HTMLDivElement | null>>({});
+  const lastHabitMoveRef = useRef<string | null>(null);
   const [habitToggleFx, setHabitToggleFx] = useState<
     Record<string, "checked" | "unchecked" | null>
   >({});
@@ -990,6 +1013,7 @@ function HabitTrackerPage() {
     let active = true;
     setHabitModalLoading(true);
     setHabitModalError(null);
+    setExpandedTemplateAreaIds({});
 
     void Promise.all([getProgressHistory(), getRecommendations()])
       .then(([historyResponse, recommendationResponse]) => {
@@ -1085,6 +1109,163 @@ function HabitTrackerPage() {
     return area?.value === activeFilter;
   });
 
+  const startHabitReorder = () => {
+    setHabitOrderSnapshot(habits);
+    setHabitOrderDirty(false);
+    setHabitOrderEditing(true);
+  };
+
+  const cancelHabitReorder = () => {
+    if (habitOrderSaving) return;
+    if (habitOrderSnapshot) {
+      setHabits(habitOrderSnapshot);
+    }
+    draggedHabitIdRef.current = null;
+    setDraggedHabitId(null);
+    setHabitOrderSnapshot(null);
+    setHabitOrderDirty(false);
+    setHabitOrderEditing(false);
+  };
+
+  const saveHabitOrder = async () => {
+    if (!habitOrderDirty || habitOrderSaving) return;
+
+    setHabitOrderSaving(true);
+    try {
+      await reorderHabits(habits.map((habit) => habit.id));
+      draggedHabitIdRef.current = null;
+      setDraggedHabitId(null);
+      setHabitOrderSnapshot(null);
+      setHabitOrderDirty(false);
+      setHabitOrderEditing(false);
+      showToast("Habit order saved");
+    } catch (err) {
+      console.error("Failed to reorder habits:", err);
+      if (habitOrderSnapshot) {
+        setHabits(habitOrderSnapshot);
+      }
+      draggedHabitIdRef.current = null;
+      setDraggedHabitId(null);
+      setHabitOrderSnapshot(null);
+      setHabitOrderDirty(false);
+      setHabitOrderEditing(false);
+      showToast("Failed to save habit order.");
+    } finally {
+      setHabitOrderSaving(false);
+    }
+  };
+
+  const getHabitRowRects = () => {
+    const rects = new Map<string, DOMRect>();
+    for (const [habitId, row] of Object.entries(habitRowRefsRef.current)) {
+      if (row) rects.set(habitId, row.getBoundingClientRect());
+    }
+    return rects;
+  };
+
+  const animateHabitRows = (previousRects: Map<string, DOMRect>) => {
+    window.requestAnimationFrame(() => {
+      for (const [habitId, previousRect] of previousRects) {
+        const row = habitRowRefsRef.current[habitId];
+        if (!row) continue;
+
+        const nextRect = row.getBoundingClientRect();
+        const deltaY = previousRect.top - nextRect.top;
+        if (Math.abs(deltaY) < 1) continue;
+
+        row.style.transition = "transform 0s";
+        row.style.transform = `translateY(${deltaY}px)`;
+        row.getBoundingClientRect();
+
+        window.requestAnimationFrame(() => {
+          row.style.transition =
+            "transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1)";
+          row.style.transform = "";
+
+          window.setTimeout(() => {
+            row.style.transition = "";
+            row.style.transform = "";
+          }, 190);
+        });
+      }
+    });
+  };
+
+  const moveHabitTo = (
+    habitId: string,
+    targetHabitId: string,
+    placement: "before" | "after",
+  ) => {
+    if (!habitOrderEditing || habitOrderSaving) return;
+    if (habitId === targetHabitId) return;
+
+    const nextHabits = [...habits];
+    const sourceIndex = nextHabits.findIndex((habit) => habit.id === habitId);
+    const targetIndex = nextHabits.findIndex(
+      (habit) => habit.id === targetHabitId,
+    );
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    const previousRects = getHabitRowRects();
+    const [movedHabit] = nextHabits.splice(sourceIndex, 1);
+    const nextTargetIndex = nextHabits.findIndex(
+      (habit) => habit.id === targetHabitId,
+    );
+    if (!movedHabit || nextTargetIndex < 0) return;
+
+    nextHabits.splice(
+      placement === "after" ? nextTargetIndex + 1 : nextTargetIndex,
+      0,
+      movedHabit,
+    );
+
+    setHabits(
+      nextHabits.map((habit, index) => ({
+        ...habit,
+        sort_order: index,
+      })),
+    );
+    animateHabitRows(previousRects);
+    setHabitOrderDirty(true);
+  };
+
+  const finishHabitDrag = () => {
+    draggedHabitIdRef.current = null;
+    lastHabitMoveRef.current = null;
+    setDraggedHabitId(null);
+  };
+
+  const handleHabitPointerDown = (
+    habitId: string,
+    event: PointerEvent<HTMLButtonElement>,
+  ) => {
+    if (!habitOrderEditing || habitOrderSaving) return;
+    draggedHabitIdRef.current = habitId;
+    lastHabitMoveRef.current = null;
+    setDraggedHabitId(habitId);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  };
+
+  const handleHabitPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+    const activeHabitId = draggedHabitIdRef.current;
+    if (!activeHabitId || habitOrderSaving) return;
+
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+    const targetRow = element?.closest<HTMLElement>("[data-habit-row-id]");
+    const targetHabitId = targetRow?.dataset.habitRowId;
+    if (!targetHabitId || targetHabitId === activeHabitId) return;
+
+    const rect = targetRow.getBoundingClientRect();
+    const placement =
+      event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+    const moveSignature = `${activeHabitId}:${targetHabitId}:${placement}`;
+    if (lastHabitMoveRef.current === moveSignature) return;
+
+    lastHabitMoveRef.current = moveSignature;
+    moveHabitTo(activeHabitId, targetHabitId, placement);
+  };
+
   const weeklyProgressByArea = useMemo(() => {
     const groupedProgress = new Map<
       number,
@@ -1135,7 +1316,7 @@ function HabitTrackerPage() {
   }, [habits]);
 
   const weeklyActivityLabels = useMemo(
-    () => getRecentLocalWeekdayLabels(7),
+    () => getLocalWeekdayLabelsStartingMonday(),
     [],
   );
 
@@ -1229,14 +1410,55 @@ function HabitTrackerPage() {
               </section>
             ) : (
               <section className="dash-card">
-                <h3 className="text-lg font-bold text-dark">My Habits</h3>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <h3 className="text-lg font-bold text-dark">My Habits</h3>
+                  {habitOrderEditing ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={cancelHabitReorder}
+                        disabled={habitOrderSaving}
+                        className="inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void saveHabitOrder()}
+                        disabled={!habitOrderDirty || habitOrderSaving}
+                        className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-bold text-white transition hover:bg-primaryHover disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {habitOrderSaving ? "Saving..." : "Save order"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={startHabitReorder}
+                      disabled={visibleHabits.length < 2}
+                      className="inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Reorder
+                    </button>
+                  )}
+                </div>
                 <div className="mt-4 grid gap-3">
                   {visibleHabits.map((h) => {
                     const areaOption = getHabitAreaOptionById(h.life_area_id);
+                    const isDraggedHabit = draggedHabitId === h.id;
                     return (
                       <div
                         key={h.id}
-                        className="flex flex-col gap-4 rounded-2xl border border-gray-100 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                        ref={(node) => {
+                          habitRowRefsRef.current[h.id] = node;
+                        }}
+                        data-habit-row-id={h.id}
+                        onDrop={finishHabitDrag}
+                        className={`habit-order-row flex flex-col gap-4 rounded-2xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between ${
+                          isDraggedHabit
+                            ? "habit-order-row--dragged border-primary/30 opacity-60 shadow-lg shadow-primary/10"
+                            : "border-gray-100"
+                        }`}
                       >
                         <div className="flex items-center gap-3 sm:gap-4">
                           <button
@@ -1248,7 +1470,9 @@ function HabitTrackerPage() {
                                 ? "Mark as not done"
                                 : "Mark as done"
                             }
-                            disabled={Boolean(togglingIds[h.id])}
+                            disabled={
+                              Boolean(togglingIds[h.id]) || habitOrderEditing
+                            }
                             className={`habit-toggle flex h-6 w-6 items-center justify-center rounded-full transition-colors transform-gpu focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed ${
                               h.completed_today
                                 ? "completed bg-primary text-white"
@@ -1311,23 +1535,51 @@ function HabitTrackerPage() {
                             <span>{h.streak ?? 0}</span>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => openHabitEditor(h)}
-                            className="ml-0 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-bodyText transition-colors hover:bg-gray-50 sm:ml-2"
-                          >
-                            <i className="fas fa-pen" aria-hidden="true" />
-                            <span className="sr-only">Edit</span>
-                          </button>
+                          {habitOrderEditing && (
+                            <button
+                              type="button"
+                              onPointerDown={(event) =>
+                                handleHabitPointerDown(h.id, event)
+                              }
+                              onPointerMove={handleHabitPointerMove}
+                              onPointerUp={finishHabitDrag}
+                              onPointerCancel={finishHabitDrag}
+                              disabled={habitOrderSaving}
+                              aria-label={`Drag ${h.name} to reorder`}
+                              title="Drag to reorder"
+                              className="habit-drag-handle inline-flex h-9 w-9 touch-none cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white text-bodyText transition hover:border-primary/40 hover:bg-gray-50 hover:text-primary active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <GripVertical
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </button>
+                          )}
 
-                          <button
-                            type="button"
-                            onClick={() => setHabitDeleteTarget(h)}
-                            className="inline-flex items-center gap-2 rounded-full border border-rose-100 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
-                          >
-                            <i className="fas fa-trash" aria-hidden="true" />
-                            <span className="sr-only">Delete</span>
-                          </button>
+                          {!habitOrderEditing && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => openHabitEditor(h)}
+                                className="ml-0 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-bodyText transition-colors hover:bg-gray-50 sm:ml-2"
+                              >
+                                <i className="fas fa-pen" aria-hidden="true" />
+                                <span className="sr-only">Edit</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setHabitDeleteTarget(h)}
+                                className="inline-flex items-center gap-2 rounded-full border border-rose-100 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                              >
+                                <i
+                                  className="fas fa-trash"
+                                  aria-hidden="true"
+                                />
+                                <span className="sr-only">Delete</span>
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     );
@@ -1655,6 +1907,13 @@ function HabitTrackerPage() {
                       {prioritizedTemplateAreas.map((area) => {
                         const templates =
                           recommendedTemplatesByArea.get(area.lifeAreaId) ?? [];
+                        const areaTemplatesExpanded =
+                          expandedTemplateAreaIds[area.lifeAreaId] ?? false;
+                        const visibleTemplates = areaTemplatesExpanded
+                          ? templates
+                          : templates.slice(0, 3);
+                        const hiddenTemplateCount =
+                          templates.length - visibleTemplates.length;
                         const score = habitAreaScores[area.lifeAreaId];
                         const scoreLabel =
                           typeof score === "number" && score > 0
@@ -1689,8 +1948,9 @@ function HabitTrackerPage() {
                                     )}
                                   </div>
                                   <p className="text-sm text-bodyText">
-                                    {scoreLabel} • {templates.length} curated
-                                    habit
+                                    {scoreLabel} • Showing{" "}
+                                    {visibleTemplates.length} of {templates.length}{" "}
+                                    curated habit
                                     {templates.length === 1 ? "" : "s"}
                                   </p>
                                 </div>
@@ -1699,8 +1959,8 @@ function HabitTrackerPage() {
                             </div>
 
                             <div className="mt-4 grid gap-3">
-                              {(templates.length > 0
-                                ? templates
+                              {(visibleTemplates.length > 0
+                                ? visibleTemplates
                                 : habitLibrary
                                     .filter(
                                       (item) => item.life_area_id === null,
@@ -1760,6 +2020,39 @@ function HabitTrackerPage() {
                                 </div>
                               ))}
                             </div>
+                            {templates.length > 3 && (
+                              <div className="mt-4 flex justify-center">
+                                <button
+                                  type="button"
+                                  aria-expanded={areaTemplatesExpanded}
+                                  onClick={() =>
+                                    setExpandedTemplateAreaIds((current) => ({
+                                      ...current,
+                                      [area.lifeAreaId]: !areaTemplatesExpanded,
+                                    }))
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-dark transition-colors hover:border-primary/40 hover:text-primary"
+                                >
+                                  {areaTemplatesExpanded ? (
+                                    <>
+                                      <ChevronUp
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                      />
+                                      Show fewer
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                      />
+                                      Show {hiddenTemplateCount} more
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            )}
                           </section>
                         );
                       })}
@@ -1980,144 +2273,148 @@ function HabitTrackerPage() {
       )}
 
       {habitEditor && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] h-screen h-[100dvh] overflow-y-auto p-4 sm:p-6">
           <button
             type="button"
             aria-label="Close habit editor"
             className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             onClick={closeHabitEditor}
           />
-          <div className="relative w-full max-w-lg rounded-[28px] bg-white p-6 shadow-2xl ring-1 ring-black/5 sm:p-7">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary/70">
-                  Edit Habit
-                </p>
-                <h2 className="mt-2 text-xl font-bold tracking-tight text-dark sm:text-2xl">
-                  Update your habit details
-                </h2>
-                <p className="mt-1 text-sm text-bodyText">
-                  Editing {habitEditor.originalName || "your habit"}.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeHabitEditor}
-                disabled={habitEditorSaving}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-                aria-label="Close"
-              >
-                <i className="fas fa-xmark" />
-              </button>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-dark">
-                  Habit name
-                </span>
-                <input
-                  type="text"
-                  value={habitEditor.name}
-                  onChange={(event) =>
-                    setHabitEditor((current) =>
-                      current
-                        ? { ...current, name: event.target.value }
-                        : current,
-                    )
-                  }
-                  className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  placeholder="Drink water"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-dark">
-                  Description
-                </span>
-                <textarea
-                  value={habitEditor.description}
-                  onChange={(event) =>
-                    setHabitEditor((current) =>
-                      current
-                        ? { ...current, description: event.target.value }
-                        : current,
-                    )
-                  }
-                  rows={4}
-                  className="w-full resize-none rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
-                  placeholder="Add a quick note to make the habit easier to follow."
-                />
-              </label>
-
-              {habitEditorError && (
-                <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-                  {habitEditorError}
+          <div className="relative flex min-h-full w-full items-center justify-center">
+            <div className="relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-lg overflow-y-auto rounded-[28px] bg-white p-6 shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100dvh-3rem)] sm:p-7">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary/70">
+                    Edit Habit
+                  </p>
+                  <h2 className="mt-2 text-xl font-bold tracking-tight text-dark sm:text-2xl">
+                    Update your habit details
+                  </h2>
+                  <p className="mt-1 text-sm text-bodyText">
+                    Editing {habitEditor.originalName || "your habit"}.
+                  </p>
                 </div>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={closeHabitEditor}
+                  disabled={habitEditorSaving}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label="Close"
+                >
+                  <i className="fas fa-xmark" />
+                </button>
+              </div>
 
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={closeHabitEditor}
-                disabled={habitEditorSaving}
-                className="inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void submitHabitEditor()}
-                disabled={habitEditorSaving}
-                className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {habitEditorSaving ? "Saving..." : "Save Changes"}
-              </button>
+              <div className="mt-6 space-y-4">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-dark">
+                    Habit name
+                  </span>
+                  <input
+                    type="text"
+                    value={habitEditor.name}
+                    onChange={(event) =>
+                      setHabitEditor((current) =>
+                        current
+                          ? { ...current, name: event.target.value }
+                          : current,
+                      )
+                    }
+                    className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    placeholder="Drink water"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-2 block text-sm font-semibold text-dark">
+                    Description
+                  </span>
+                  <textarea
+                    value={habitEditor.description}
+                    onChange={(event) =>
+                      setHabitEditor((current) =>
+                        current
+                          ? { ...current, description: event.target.value }
+                          : current,
+                      )
+                    }
+                    rows={4}
+                    className="w-full resize-none rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-dark outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    placeholder="Add a quick note to make the habit easier to follow."
+                  />
+                </label>
+
+                {habitEditorError && (
+                  <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+                    {habitEditorError}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeHabitEditor}
+                  disabled={habitEditorSaving}
+                  className="inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void submitHabitEditor()}
+                  disabled={habitEditorSaving}
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {habitEditorSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {habitDeleteTarget && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] h-screen h-[100dvh] overflow-y-auto p-4 sm:p-6">
           <button
             type="button"
             aria-label="Close delete confirmation"
             className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             onClick={closeHabitDeleteDialog}
           />
-          <div className="relative w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl ring-1 ring-black/5 sm:p-7">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
-              <i className="fas fa-trash" aria-hidden="true" />
-            </div>
-            <h2 className="mt-5 text-xl font-bold tracking-tight text-dark sm:text-2xl">
-              Delete habit?
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-bodyText">
-              <span className="font-semibold text-dark">
-                {habitDeleteTarget.name}
-              </span>{" "}
-              will be removed permanently. This action cannot be undone.
-            </p>
+          <div className="relative flex min-h-full w-full items-center justify-center">
+            <div className="relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[28px] bg-white p-6 shadow-2xl ring-1 ring-black/5 sm:max-h-[calc(100dvh-3rem)] sm:p-7">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600">
+                <i className="fas fa-trash" aria-hidden="true" />
+              </div>
+              <h2 className="mt-5 text-xl font-bold tracking-tight text-dark sm:text-2xl">
+                Delete habit?
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-bodyText">
+                <span className="font-semibold text-dark">
+                  {habitDeleteTarget.name}
+                </span>{" "}
+                will be removed permanently. This action cannot be undone.
+              </p>
 
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={closeHabitDeleteDialog}
-                disabled={habitDeleteLoading}
-                className="inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => void confirmHabitDelete()}
-                disabled={habitDeleteLoading}
-                className="inline-flex items-center justify-center rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {habitDeleteLoading ? "Deleting..." : "Delete Habit"}
-              </button>
+              <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={closeHabitDeleteDialog}
+                  disabled={habitDeleteLoading}
+                  className="inline-flex items-center justify-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void confirmHabitDelete()}
+                  disabled={habitDeleteLoading}
+                  className="inline-flex items-center justify-center rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {habitDeleteLoading ? "Deleting..." : "Delete Habit"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

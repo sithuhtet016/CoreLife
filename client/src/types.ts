@@ -47,6 +47,7 @@ export type Habit = {
   description: string;
   life_area_id: number;
   frequency: "daily" | "weekly";
+  sort_order?: number;
   created_at: string;
   streak: number;
   weekly_consistency: number;

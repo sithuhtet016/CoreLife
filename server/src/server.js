@@ -165,6 +165,26 @@ function isNoRowsError(error) {
   );
 }
 
+function isMissingSortOrderError(error) {
+  if (!error || typeof error !== "object") return false;
+  const values = [
+    error.code,
+    error.message,
+    error.details,
+    error.hint,
+    error.error_description,
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+  const text = values.join(" ");
+
+  return (
+    text.includes("sort_order") ||
+    (text.includes("schema cache") && text.includes("habits")) ||
+    text.includes("42703")
+  );
+}
+
 function toPublicUser(user) {
   return {
     id: user.id,
@@ -262,6 +282,21 @@ function getRecentDateKeysForTimezoneOffset(offsetMinutes, days = 7) {
   return keys;
 }
 
+function getMondayWeekDateKeysForTimezoneOffset(offsetMinutes, date = new Date()) {
+  const todayKey = getDateKeyForTimezoneOffset(offsetMinutes, date);
+  const today = new Date(`${todayKey}T00:00:00.000Z`);
+  const dayOfWeek = today.getUTCDay();
+  const daysSinceMonday = (dayOfWeek + 6) % 7;
+  const monday = new Date(today);
+  monday.setUTCDate(today.getUTCDate() - daysSinceMonday);
+
+  return Array.from({ length: 7 }, (_value, index) => {
+    const day = new Date(monday);
+    day.setUTCDate(monday.getUTCDate() + index);
+    return day.toISOString().slice(0, 10);
+  });
+}
+
 function shiftDateKey(dateKey, deltaDays) {
   const base = new Date(`${String(dateKey).trim()}T00:00:00.000Z`);
   if (Number.isNaN(base.getTime())) {
@@ -304,6 +339,30 @@ const recommendationLibrary = [
       "A 10-minute walk or stretch break can make your day feel lighter.",
   },
   {
+    id: "health-meal-prep",
+    life_area_id: 1,
+    priority: "suggestion",
+    title: "Prep one balanced meal",
+    description:
+      "Choose one simple meal ahead of time so healthy eating takes less effort.",
+  },
+  {
+    id: "health-stress-reset",
+    life_area_id: 1,
+    priority: "suggestion",
+    title: "Take a two-minute stress reset",
+    description:
+      "Pause for slow breathing before stress turns into tension.",
+  },
+  {
+    id: "health-checkup",
+    life_area_id: 1,
+    priority: "suggestion",
+    title: "Book one health check-in",
+    description:
+      "Schedule or review one preventive appointment you have been postponing.",
+  },
+  {
     id: "appearance-grooming",
     life_area_id: 2,
     priority: "suggestion",
@@ -318,6 +377,38 @@ const recommendationLibrary = [
     title: "Plan one polished outfit ahead",
     description:
       "Choose tomorrow's outfit tonight so getting ready feels effortless.",
+  },
+  {
+    id: "appearance-skincare",
+    life_area_id: 2,
+    priority: "suggestion",
+    title: "Keep one simple care routine",
+    description:
+      "Pick a small skin, hair, or body care step you can repeat consistently.",
+  },
+  {
+    id: "appearance-closet-reset",
+    life_area_id: 2,
+    priority: "suggestion",
+    title: "Reset one clothing area",
+    description:
+      "Tidy one drawer or shelf so getting dressed feels a little easier.",
+  },
+  {
+    id: "appearance-confidence-note",
+    life_area_id: 2,
+    priority: "suggestion",
+    title: "Notice one confident detail",
+    description:
+      "Name one thing about your presentation that feels like you today.",
+  },
+  {
+    id: "appearance-photo-comfort",
+    life_area_id: 2,
+    priority: "suggestion",
+    title: "Practice photo comfort",
+    description:
+      "Take one low-pressure photo to build comfort being seen.",
   },
   {
     id: "love-checkin",
@@ -336,6 +427,38 @@ const recommendationLibrary = [
       "A small note of gratitude can keep the relationship feeling warm.",
   },
   {
+    id: "love-quality-time",
+    life_area_id: 3,
+    priority: "suggestion",
+    title: "Protect one quality-time block",
+    description:
+      "Set aside distraction-free time for connection, even if it is brief.",
+  },
+  {
+    id: "love-listening",
+    life_area_id: 3,
+    priority: "suggestion",
+    title: "Practice one patient listen",
+    description:
+      "Give someone your full attention before trying to fix or respond.",
+  },
+  {
+    id: "love-boundary",
+    life_area_id: 3,
+    priority: "suggestion",
+    title: "Name one relationship need",
+    description:
+      "Write or share one need clearly so it is easier to understand.",
+  },
+  {
+    id: "love-repair",
+    life_area_id: 3,
+    priority: "suggestion",
+    title: "Repair one small misunderstanding",
+    description:
+      "Address one unresolved moment with honesty and a calm tone.",
+  },
+  {
     id: "family-boundaries",
     life_area_id: 4,
     priority: "suggestion",
@@ -352,6 +475,38 @@ const recommendationLibrary = [
       "A shared meal or quick call can make family time more intentional.",
   },
   {
+    id: "family-appreciation",
+    life_area_id: 4,
+    priority: "suggestion",
+    title: "Thank one family member",
+    description:
+      "Send a simple thank-you for something specific they have done.",
+  },
+  {
+    id: "family-expectations",
+    life_area_id: 4,
+    priority: "suggestion",
+    title: "Clarify one expectation",
+    description:
+      "Make one family responsibility or plan clearer before it creates stress.",
+  },
+  {
+    id: "family-memory",
+    life_area_id: 4,
+    priority: "suggestion",
+    title: "Make one small memory",
+    description:
+      "Create a tiny shared moment that feels warm and easy to repeat.",
+  },
+  {
+    id: "family-space",
+    life_area_id: 4,
+    priority: "suggestion",
+    title: "Take space before reacting",
+    description:
+      "Use a short pause before a family conversation that may feel charged.",
+  },
+  {
     id: "friends-reachout",
     life_area_id: 5,
     priority: "suggestion",
@@ -365,6 +520,38 @@ const recommendationLibrary = [
     title: "Plan one simple hangout",
     description:
       "Lock in a coffee, walk, or call so friendship stays on the calendar.",
+  },
+  {
+    id: "friends-support",
+    life_area_id: 5,
+    priority: "suggestion",
+    title: "Offer one friend support",
+    description:
+      "Check what one friend needs instead of waiting for a big occasion.",
+  },
+  {
+    id: "friends-celebrate",
+    life_area_id: 5,
+    priority: "suggestion",
+    title: "Celebrate one friend's win",
+    description:
+      "Send a short message that helps someone feel noticed.",
+  },
+  {
+    id: "friends-reconnect",
+    life_area_id: 5,
+    priority: "suggestion",
+    title: "Reconnect with one person",
+    description:
+      "Reach out to someone you miss with a simple, no-pressure message.",
+  },
+  {
+    id: "friends-boundary",
+    life_area_id: 5,
+    priority: "suggestion",
+    title: "Protect friendship energy",
+    description:
+      "Notice one social plan or pattern that needs a clearer boundary.",
   },
   {
     id: "career-focus",
@@ -383,6 +570,38 @@ const recommendationLibrary = [
       "A quick end-of-day review helps you start tomorrow with clarity.",
   },
   {
+    id: "career-feedback",
+    life_area_id: 6,
+    priority: "suggestion",
+    title: "Ask for one useful feedback point",
+    description:
+      "Request specific feedback that can help you improve your next step.",
+  },
+  {
+    id: "career-skill",
+    life_area_id: 6,
+    priority: "suggestion",
+    title: "Practice one career skill",
+    description:
+      "Spend 20 minutes on a skill that supports where you want to go.",
+  },
+  {
+    id: "career-boundary",
+    life_area_id: 6,
+    priority: "suggestion",
+    title: "Set one work boundary",
+    description:
+      "Choose one limit that protects your energy without dropping the ball.",
+  },
+  {
+    id: "career-win-log",
+    life_area_id: 6,
+    priority: "suggestion",
+    title: "Log one work win",
+    description:
+      "Write down one concrete contribution so progress does not disappear.",
+  },
+  {
     id: "money-review",
     life_area_id: 7,
     priority: "high",
@@ -397,6 +616,38 @@ const recommendationLibrary = [
     title: "Automate one small transfer",
     description:
       "Move a little money into savings before you have a chance to spend it.",
+  },
+  {
+    id: "money-spending-check",
+    life_area_id: 7,
+    priority: "suggestion",
+    title: "Check one spending category",
+    description:
+      "Review one category to see whether it still matches your priorities.",
+  },
+  {
+    id: "money-bill-plan",
+    life_area_id: 7,
+    priority: "suggestion",
+    title: "Plan one upcoming bill",
+    description:
+      "Look ahead at one expense so it feels expected instead of stressful.",
+  },
+  {
+    id: "money-pause-purchase",
+    life_area_id: 7,
+    priority: "suggestion",
+    title: "Pause one nonessential purchase",
+    description:
+      "Wait 24 hours before buying something that is not urgent.",
+  },
+  {
+    id: "money-goal-note",
+    life_area_id: 7,
+    priority: "suggestion",
+    title: "Name one money goal",
+    description:
+      "Write one clear financial goal so your next choice has direction.",
   },
   {
     id: "growth-learning",
@@ -414,6 +665,38 @@ const recommendationLibrary = [
       "A quick note on what you learned helps progress feel visible.",
   },
   {
+    id: "growth-comfort-zone",
+    life_area_id: 8,
+    priority: "suggestion",
+    title: "Try one small stretch",
+    description:
+      "Choose one action that is slightly uncomfortable but still manageable.",
+  },
+  {
+    id: "growth-read",
+    life_area_id: 8,
+    priority: "suggestion",
+    title: "Read for ten minutes",
+    description:
+      "Spend a short block with a book, course, or idea that expands you.",
+  },
+  {
+    id: "growth-feedback",
+    life_area_id: 8,
+    priority: "suggestion",
+    title: "Ask one growth question",
+    description:
+      "Ask someone you trust what one thing would help you improve.",
+  },
+  {
+    id: "growth-progress",
+    life_area_id: 8,
+    priority: "suggestion",
+    title: "Track one personal milestone",
+    description:
+      "Record one small sign that you are becoming more aligned with yourself.",
+  },
+  {
     id: "spiritual-reflect",
     life_area_id: 9,
     priority: "suggestion",
@@ -427,6 +710,38 @@ const recommendationLibrary = [
     title: "Add a quiet morning pause",
     description:
       "A short pause before the day begins can create a calmer rhythm.",
+  },
+  {
+    id: "spiritual-gratitude",
+    life_area_id: 9,
+    priority: "suggestion",
+    title: "Write one gratitude line",
+    description:
+      "Name one thing that feels meaningful, steady, or worth noticing.",
+  },
+  {
+    id: "spiritual-values",
+    life_area_id: 9,
+    priority: "suggestion",
+    title: "Choose one values-based action",
+    description:
+      "Let one small decision reflect the kind of person you want to be.",
+  },
+  {
+    id: "spiritual-silence",
+    life_area_id: 9,
+    priority: "suggestion",
+    title: "Spend five minutes in silence",
+    description:
+      "Create a quiet pocket of time without needing to accomplish anything.",
+  },
+  {
+    id: "spiritual-forgiveness",
+    life_area_id: 9,
+    priority: "suggestion",
+    title: "Practice one forgiving thought",
+    description:
+      "Release a little harshness toward yourself or someone else.",
   },
   {
     id: "recreation-breaks",
@@ -445,6 +760,38 @@ const recommendationLibrary = [
       "Block a little time for something fun so your week feels more balanced.",
   },
   {
+    id: "recreation-screen-break",
+    life_area_id: 10,
+    priority: "suggestion",
+    title: "Take one screen-free break",
+    description:
+      "Use a short pocket of free time without defaulting to a screen.",
+  },
+  {
+    id: "recreation-play",
+    life_area_id: 10,
+    priority: "suggestion",
+    title: "Do one playful thing",
+    description:
+      "Choose an activity that feels enjoyable without needing to be productive.",
+  },
+  {
+    id: "recreation-outing",
+    life_area_id: 10,
+    priority: "suggestion",
+    title: "Plan a low-effort outing",
+    description:
+      "Put one simple enjoyable activity on the calendar this week.",
+  },
+  {
+    id: "recreation-rest",
+    life_area_id: 10,
+    priority: "suggestion",
+    title: "Protect a real rest block",
+    description:
+      "Set aside time to recharge without filling it with extra tasks.",
+  },
+  {
     id: "environment-reset",
     life_area_id: 11,
     priority: "suggestion",
@@ -457,6 +804,38 @@ const recommendationLibrary = [
     priority: "suggestion",
     title: "Reset your desk at day end",
     description: "A tidy workspace makes it easier to start strong tomorrow.",
+  },
+  {
+    id: "environment-bedroom",
+    life_area_id: 11,
+    priority: "suggestion",
+    title: "Reset one sleep space",
+    description:
+      "Make your bed or clear a nightstand so rest feels more inviting.",
+  },
+  {
+    id: "environment-digital",
+    life_area_id: 11,
+    priority: "suggestion",
+    title: "Clear one digital pile",
+    description:
+      "Delete, archive, or sort one small batch of digital clutter.",
+  },
+  {
+    id: "environment-friction",
+    life_area_id: 11,
+    priority: "suggestion",
+    title: "Remove one daily friction point",
+    description:
+      "Fix one tiny annoyance in your space that slows your routine down.",
+  },
+  {
+    id: "environment-supplies",
+    life_area_id: 11,
+    priority: "suggestion",
+    title: "Restock one essential",
+    description:
+      "Replace or prepare one item that helps your home run more smoothly.",
   },
   {
     id: "community-contribute",
@@ -474,11 +853,59 @@ const recommendationLibrary = [
       "A small conversation or favor can strengthen your sense of belonging.",
   },
   {
+    id: "community-event",
+    life_area_id: 12,
+    priority: "suggestion",
+    title: "Find one local event",
+    description:
+      "Look for one nearby gathering that could help you feel more connected.",
+  },
+  {
+    id: "community-help",
+    life_area_id: 12,
+    priority: "suggestion",
+    title: "Offer one small act of help",
+    description:
+      "Choose a simple way to support someone in your wider circle.",
+  },
+  {
+    id: "community-thanks",
+    life_area_id: 12,
+    priority: "suggestion",
+    title: "Thank someone who contributes",
+    description:
+      "Send a note to someone whose effort improves your community.",
+  },
+  {
+    id: "community-belonging",
+    life_area_id: 12,
+    priority: "suggestion",
+    title: "Join one shared space",
+    description:
+      "Participate briefly in a group, forum, or place where you can belong.",
+  },
+  {
     id: "general-habit",
     life_area_id: null,
     priority: "suggestion",
     title: "Build a simple daily habit",
     description: "Start with a 5-minute habit you can repeat every day.",
+  },
+  {
+    id: "general-weekly-review",
+    life_area_id: null,
+    priority: "suggestion",
+    title: "Do a tiny weekly review",
+    description:
+      "Spend five minutes choosing what matters most for the week ahead.",
+  },
+  {
+    id: "general-one-thing",
+    life_area_id: null,
+    priority: "suggestion",
+    title: "Choose one thing today",
+    description:
+      "Pick one small action that would make today feel more aligned.",
   },
 ];
 
@@ -1837,15 +2264,34 @@ app.post("/api/habits", requireAuth, async (req, res) => {
     return res.status(400).json({ error: "invalid frequency" });
   }
 
+  const { data: lastHabit, error: lastHabitError } = await supabaseAdmin
+    .from("habits")
+    .select("sort_order")
+    .eq("user_id", req.user.id)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lastHabitError && !isMissingSortOrderError(lastHabitError)) {
+    return res.status(500).json({
+      error: formatSupabaseError(lastHabitError, "failed to create habit"),
+    });
+  }
+
+  const insertPayload = {
+    user_id: req.user.id,
+    name: normalizedName,
+    description: normalizedDescription,
+    life_area_id: lifeAreaId,
+    frequency,
+  };
+  if (!isMissingSortOrderError(lastHabitError)) {
+    insertPayload.sort_order = Number(lastHabit?.sort_order ?? -1) + 1;
+  }
+
   const { data: habit, error } = await supabaseAdmin
     .from("habits")
-    .insert({
-      user_id: req.user.id,
-      name: normalizedName,
-      description: normalizedDescription,
-      life_area_id: lifeAreaId,
-      frequency,
-    })
+    .insert(insertPayload)
     .select("*")
     .single();
 
@@ -1866,11 +2312,23 @@ app.post("/api/habits", requireAuth, async (req, res) => {
 
 app.get("/api/habits", requireAuth, async (req, res) => {
   const timezoneOffsetMinutes = Number(req.query.tzOffsetMinutes ?? 0);
-  const { data: habits, error: habitsError } = await supabaseAdmin
+  let { data: habits, error: habitsError } = await supabaseAdmin
     .from("habits")
     .select("*")
     .eq("user_id", req.user.id)
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
+
+  if (isMissingSortOrderError(habitsError)) {
+    const fallbackResult = await supabaseAdmin
+      .from("habits")
+      .select("*")
+      .eq("user_id", req.user.id)
+      .order("created_at", { ascending: false });
+
+    habits = fallbackResult.data;
+    habitsError = fallbackResult.error;
+  }
 
   if (habitsError) {
     return res.status(500).json({
@@ -1895,11 +2353,10 @@ app.get("/api/habits", requireAuth, async (req, res) => {
   }
 
   const today = getDateKeyForTimezoneOffset(timezoneOffsetMinutes);
-  const recentDateKeys = getRecentDateKeysForTimezoneOffset(
+  const weekDateKeys = getMondayWeekDateKeysForTimezoneOffset(
     timezoneOffsetMinutes,
-    7,
   );
-  const recentDateKeySet = new Set(recentDateKeys);
+  const weekDateKeySet = new Set(weekDateKeys);
 
   const logsByHabit = new Map();
   const completedDateKeySet = new Set();
@@ -1914,14 +2371,14 @@ app.get("/api/habits", requireAuth, async (req, res) => {
     if (log.completed) {
       const dateKey = String(log.date);
       if (dateKey === today) completedTodayCount += 1;
-      if (recentDateKeySet.has(dateKey)) completedDateKeySet.add(dateKey);
+      if (weekDateKeySet.has(dateKey)) completedDateKeySet.add(dateKey);
     }
   }
 
   const enrichedHabits = habits.map((habit) => {
     const metrics = computeHabitMetrics(logsByHabit.get(habit.id) ?? [], {
       todayKey: today,
-      recentDateKeys,
+      recentDateKeys: weekDateKeys,
     });
     return {
       ...habit,
@@ -1933,7 +2390,7 @@ app.get("/api/habits", requireAuth, async (req, res) => {
       ),
     };
   });
-  const weeklyActivity = recentDateKeys.map((dayKey) =>
+  const weeklyActivity = weekDateKeys.map((dayKey) =>
     completedDateKeySet.has(dayKey),
   );
 
@@ -1999,6 +2456,88 @@ app.post("/api/habits/log", requireAuth, async (req, res) => {
     return res
       .status(500)
       .json({ error: formatSupabaseError(upsertError, "failed to save log") });
+  }
+
+  return res.json({ ok: true });
+});
+
+app.put("/api/habits/reorder", requireAuth, async (req, res) => {
+  const habitIds = Array.isArray(req.body?.habitIds) ? req.body.habitIds : null;
+  if (!habitIds || habitIds.length === 0) {
+    return res.status(400).json({ error: "habitIds are required" });
+  }
+
+  const normalizedHabitIds = habitIds.map((id) => String(id));
+  if (new Set(normalizedHabitIds).size !== normalizedHabitIds.length) {
+    return res.status(400).json({ error: "habitIds must be unique" });
+  }
+
+  const { data: habits, error: habitsError } = await supabaseAdmin
+    .from("habits")
+    .select("id")
+    .eq("user_id", req.user.id);
+
+  if (habitsError) {
+    return res.status(500).json({
+      error: formatSupabaseError(habitsError, "failed to fetch habits"),
+    });
+  }
+
+  const userHabitIds = new Set((habits ?? []).map((habit) => habit.id));
+  if (
+    normalizedHabitIds.length !== userHabitIds.size ||
+    normalizedHabitIds.some((id) => !userHabitIds.has(id))
+  ) {
+    return res.status(400).json({ error: "habitIds must include every habit" });
+  }
+
+  const updateResults = await Promise.all(
+    normalizedHabitIds.map((id, index) =>
+      supabaseAdmin
+        .from("habits")
+        .update({ sort_order: index })
+        .eq("id", id)
+        .eq("user_id", req.user.id),
+    ),
+  );
+
+  const failedUpdate = updateResults.find((result) => result.error);
+  if (isMissingSortOrderError(failedUpdate?.error)) {
+    const now = Date.now();
+    const fallbackResults = await Promise.all(
+      normalizedHabitIds.map((id, index) =>
+        supabaseAdmin
+          .from("habits")
+          .update({
+            created_at: new Date(now - index * 1000).toISOString(),
+          })
+          .eq("id", id)
+          .eq("user_id", req.user.id),
+      ),
+    );
+    const failedFallbackUpdate = fallbackResults.find(
+      (result) => result.error,
+    );
+
+    if (failedFallbackUpdate?.error) {
+      return res.status(500).json({
+        error: formatSupabaseError(
+          failedFallbackUpdate.error,
+          "failed to reorder habits",
+        ),
+      });
+    }
+
+    return res.json({ ok: true });
+  }
+
+  if (failedUpdate?.error) {
+    return res.status(500).json({
+      error: formatSupabaseError(
+        failedUpdate.error,
+        "failed to reorder habits",
+      ),
+    });
   }
 
   return res.json({ ok: true });

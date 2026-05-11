@@ -36,6 +36,21 @@ export function getRecentLocalWeekdayLabels(days = 7, locale = undefined) {
   return labels;
 }
 
+export function getLocalWeekdayLabelsStartingMonday(locale = undefined) {
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const daysSinceMonday = (dayOfWeek + 6) % 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - daysSinceMonday);
+
+  return Array.from({ length: 7 }, (_value, index) => {
+    const day = new Date(monday);
+    day.setDate(monday.getDate() + index);
+    return formatter.format(day);
+  });
+}
+
 export function scheduleAlignedInterval(
   callback: () => void,
   getInitialDelay: () => number,

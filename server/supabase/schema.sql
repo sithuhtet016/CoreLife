@@ -118,11 +118,15 @@ create table if not exists habits (
   description text not null default '',
   life_area_id int not null references life_areas(id),
   frequency text not null check (frequency in ('daily', 'weekly')),
+  sort_order int not null default 0,
   created_at timestamptz not null default now()
 );
 
-create index if not exists idx_habits_user_id_created_at
-  on habits(user_id, created_at desc);
+alter table habits
+  add column if not exists sort_order int not null default 0;
+
+create index if not exists idx_habits_user_id_sort_order_created_at
+  on habits(user_id, sort_order asc, created_at desc);
 
 create table if not exists habit_logs (
   id uuid primary key default gen_random_uuid(),
