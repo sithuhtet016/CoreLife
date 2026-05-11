@@ -1,10 +1,12 @@
 import {
   type PointerEvent,
+  type ReactNode,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   Activity,
   Briefcase,
@@ -1320,6 +1322,11 @@ function HabitTrackerPage() {
     [],
   );
 
+  const renderModal = (content: ReactNode) => {
+    if (typeof document === "undefined") return null;
+    return createPortal(content, document.body);
+  };
+
   return (
     <div className="habit-tracker-page text-dark antialiased selection:bg-primary selection:text-white m-0 p-0 min-h-screen flex flex-col">
       <a href="#main-content" className="skip-link">
@@ -1339,7 +1346,7 @@ function HabitTrackerPage() {
           >
             <div
               aria-label="Habit category filters"
-              className="w-full overflow-x-auto pb-2 sm:pb-0"
+              className="w-full min-w-0 overflow-x-auto pb-2 sm:pb-0"
             >
               <div className="flex items-center gap-2 min-w-max pr-2">
                 {LIFE_AREA_FILTERS.map((filter) => {
@@ -1410,15 +1417,15 @@ function HabitTrackerPage() {
               </section>
             ) : (
               <section className="dash-card">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="habit-list-header flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <h3 className="text-lg font-bold text-dark">My Habits</h3>
                   {habitOrderEditing ? (
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="habit-order-actions flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={cancelHabitReorder}
                         disabled={habitOrderSaving}
-                        className="inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="habit-order-action-button inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         Cancel
                       </button>
@@ -1426,7 +1433,7 @@ function HabitTrackerPage() {
                         type="button"
                         onClick={() => void saveHabitOrder()}
                         disabled={!habitOrderDirty || habitOrderSaving}
-                        className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-bold text-white transition hover:bg-primaryHover disabled:cursor-not-allowed disabled:opacity-60"
+                        className="habit-order-action-button inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-bold text-white transition hover:bg-primaryHover disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {habitOrderSaving ? "Saving..." : "Save order"}
                       </button>
@@ -1436,8 +1443,9 @@ function HabitTrackerPage() {
                       type="button"
                       onClick={startHabitReorder}
                       disabled={visibleHabits.length < 2}
-                      className="inline-flex h-9 items-center justify-center rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      className="habit-reorder-button inline-flex h-9 items-center justify-center gap-2 rounded-full border border-gray-200 px-4 text-sm font-semibold text-bodyText transition hover:border-primary/40 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
                     >
+                      <GripVertical className="h-4 w-4" aria-hidden="true" />
                       Reorder
                     </button>
                   )}
@@ -1460,7 +1468,7 @@ function HabitTrackerPage() {
                             : "border-gray-100"
                         }`}
                       >
-                        <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="habit-row-main flex items-center gap-3 sm:gap-4">
                           <button
                             type="button"
                             onClick={() => void toggleHabitCompletion(h)}
@@ -1508,10 +1516,10 @@ function HabitTrackerPage() {
                             <span aria-hidden className="sparkles" />
                           </button>
 
-                          <div>
+                          <div className="habit-row-copy min-w-0">
                             <div
                               title={h.name}
-                              className={`max-w-[20rem] text-sm font-bold truncate ${
+                              className={`habit-row-title max-w-[20rem] text-sm font-bold truncate ${
                                 h.completed_today
                                   ? "line-through text-bodyText/60"
                                   : "text-dark"
@@ -1519,20 +1527,23 @@ function HabitTrackerPage() {
                             >
                               {h.name}
                             </div>
-                            <div className="max-w-[18rem] text-xs text-bodyText truncate">
+                            <div className="habit-row-meta max-w-[18rem] text-xs text-bodyText truncate">
                               {areaOption?.label ?? h.life_area_id ?? "General"}{" "}
                               • {h.frequency}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                          <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700">
+                        <div className="habit-row-controls flex flex-wrap items-center gap-2 sm:gap-3">
+                          <div className="habit-streak-pill inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-700">
                             <i
                               className="fas fa-fire text-xs"
                               aria-hidden="true"
                             />
                             <span>{h.streak ?? 0}</span>
+                            <span className="habit-streak-label">
+                              day streak
+                            </span>
                           </div>
 
                           {habitOrderEditing && (
@@ -1547,7 +1558,7 @@ function HabitTrackerPage() {
                               disabled={habitOrderSaving}
                               aria-label={`Drag ${h.name} to reorder`}
                               title="Drag to reorder"
-                              className="habit-drag-handle inline-flex h-9 w-9 touch-none cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white text-bodyText transition hover:border-primary/40 hover:bg-gray-50 hover:text-primary active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
+                              className="habit-drag-handle habit-row-icon-button inline-flex h-9 w-9 touch-none cursor-grab items-center justify-center rounded-full border border-gray-200 bg-white text-bodyText transition hover:border-primary/40 hover:bg-gray-50 hover:text-primary active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               <GripVertical
                                 className="h-5 w-5"
@@ -1561,7 +1572,7 @@ function HabitTrackerPage() {
                               <button
                                 type="button"
                                 onClick={() => openHabitEditor(h)}
-                                className="ml-0 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-bodyText transition-colors hover:bg-gray-50 sm:ml-2"
+                                className="habit-row-icon-button ml-0 inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-sm font-medium text-bodyText transition-colors hover:bg-gray-50 sm:ml-2"
                               >
                                 <i className="fas fa-pen" aria-hidden="true" />
                                 <span className="sr-only">Edit</span>
@@ -1570,7 +1581,7 @@ function HabitTrackerPage() {
                               <button
                                 type="button"
                                 onClick={() => setHabitDeleteTarget(h)}
-                                className="inline-flex items-center gap-2 rounded-full border border-rose-100 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
+                                className="habit-row-icon-button inline-flex items-center gap-2 rounded-full border border-rose-100 px-3 py-1 text-sm font-medium text-rose-600 hover:bg-rose-50 transition-colors"
                               >
                                 <i
                                   className="fas fa-trash"
@@ -1727,7 +1738,8 @@ function HabitTrackerPage() {
         </div>
       </main>
 
-      {habitModalOpen && (
+      {habitModalOpen &&
+        renderModal(
         <div className="fixed inset-0 z-[60] h-screen h-[100dvh] overflow-y-auto p-3 sm:p-4 md:p-5 lg:p-6">
           <button
             type="button"
@@ -2269,10 +2281,11 @@ function HabitTrackerPage() {
             </div>
             </div>
           </div>
-        </div>
+        </div>,
       )}
 
-      {habitEditor && (
+      {habitEditor &&
+        renderModal(
         <div className="fixed inset-0 z-[70] h-screen h-[100dvh] overflow-y-auto p-4 sm:p-6">
           <button
             type="button"
@@ -2371,10 +2384,11 @@ function HabitTrackerPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
       )}
 
-      {habitDeleteTarget && (
+      {habitDeleteTarget &&
+        renderModal(
         <div className="fixed inset-0 z-[70] h-screen h-[100dvh] overflow-y-auto p-4 sm:p-6">
           <button
             type="button"
@@ -2417,7 +2431,7 @@ function HabitTrackerPage() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
       )}
 
       {toast && (
