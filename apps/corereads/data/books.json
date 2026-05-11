@@ -1,0 +1,29 @@
+[
+  {
+    "id": "atomic-habits",
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "category": "Self Improvement",
+    "coverUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+    "status": "published",
+    "createdAt": "2026-05-10T00:00:00.000Z",
+    "summary": {
+      "overview": "Atomic Habits explains how tiny, consistent behavior changes compound into remarkable long-term results.",
+      "mainIdea": "Focus less on goals and more on identity-backed systems that make good actions automatic.",
+      "keyIdeas": [
+        "Habits follow a cue, craving, response, and reward loop.",
+        "Use environment design to reduce friction for good habits.",
+        "Small improvements become massive through compounding."
+      ],
+      "actionSteps": [
+        "Pick one identity statement you want to reinforce daily.",
+        "Use habit stacking: after current habit X, do new habit Y.",
+        "Track habit consistency with a visible checklist."
+      ],
+      "whoShouldRead": "Anyone building consistency in health, productivity, or personal growth.",
+      "commentary": "The book is practical and tactical, especially useful for people who struggle with motivation cycles.",
+      "finalTakeaway": "You do not rise to the level of your goals, you fall to the level of your systems.",
+      "readingTime": "8 min"
+    }
+  }
+]

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:corereads": "npm run dev --prefix apps/corereads",
     "build": "npm --prefix client run build",
+    "build:corereads": "npm run build --prefix apps/corereads",
     "start": "npm --prefix server run start",
     "typecheck": "npm --prefix client run typecheck"
   },

@@ -27,6 +27,7 @@ const ResultsPage = lazy(() => import("./pages/ResultsPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
 const AuthRequiredPage = lazy(() => import("./pages/AuthRequiredPage"));
+const CoreReadsPage = lazy(() => import("./pages/CoreReadsPage"));
 
 function RequireAuth({ children }: { children: ReactElement }) {
   const location = useLocation();
@@ -162,6 +163,7 @@ function App() {
       "/habit-tracker": "CoreLife - Habit Tracker",
       "/progress-analytics": "CoreLife - Progress & Analytics",
       "/results": "CoreLife - Your CoreLife Score",
+      "/corereads": "CoreLife - CoreReads",
       "/legal": "CoreLife - Privacy, Terms & Support",
     };
 
@@ -215,6 +217,14 @@ function App() {
             element={
               <RequireDashboardAccess>
                 <ResultsPage />
+              </RequireDashboardAccess>
+            }
+          />
+          <Route
+            path="/corereads"
+            element={
+              <RequireDashboardAccess>
+                <CoreReadsPage />
               </RequireDashboardAccess>
             }
           />

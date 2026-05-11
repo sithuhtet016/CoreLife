@@ -2,12 +2,18 @@ import { Link, useLocation } from "react-router-dom";
 import BrandLogo from "./BrandLogo";
 import HeaderUserMenu from "./HeaderUserMenu";
 
-const APP_NAV_ITEMS = [
+type AppNavItem = {
+  label: string;
+  to: string;
+};
+
+const APP_NAV_ITEMS: readonly AppNavItem[] = [
   { label: "Dashboard", to: "/dashboard" },
   { label: "Habit Tracker", to: "/habit-tracker" },
   { label: "Progress & Analytics", to: "/progress-analytics" },
   { label: "Results", to: "/results" },
-] as const;
+  { label: "CoreReads", to: "/corereads" },
+];
 
 function isActivePath(pathname: string, target: string) {
   return pathname === target || pathname.startsWith(`${target}/`);
